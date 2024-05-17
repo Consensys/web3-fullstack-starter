@@ -10,7 +10,6 @@
   "license": "ISC",
   "description": "",
   "workspaces": [
-    "packages/blockchain",
     "packages/site"
   ]
 }
