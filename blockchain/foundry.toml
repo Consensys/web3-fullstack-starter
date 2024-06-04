@@ -3,7 +3,8 @@ src = "src"
 out = "out"
 libs = ["lib"]
 remappings = [
-    "@openzeppelin/contracts=lib/openzeppelin-contracts/contracts"
+    "@openzeppelin/contracts=lib/openzeppelin-contracts/contracts",
+    "base64-sol=node_modules/base64-sol"
 ]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
