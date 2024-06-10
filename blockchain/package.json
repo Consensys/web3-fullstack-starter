@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
     "base64-sol": "^1.1.0"
   }
 }
