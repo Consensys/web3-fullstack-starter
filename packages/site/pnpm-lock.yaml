@@ -11,9 +11,15 @@ dependencies:
   '@openzeppelin/contracts':
     specifier: ^5.0.2
     version: 5.0.2
+  '@tanstack/query-sync-storage-persister':
+    specifier: ^5.40.0
+    version: 5.40.0
   '@tanstack/react-query':
-    specifier: ^5.25.0
+    specifier: ^5.40.1
     version: 5.40.1(react@18.3.1)
+  '@tanstack/react-query-persist-client':
+    specifier: ^5.40.1
+    version: 5.40.1(@tanstack/react-query@5.40.1)(react@18.3.1)
   '@web3modal/wagmi':
     specifier: ^4.2.1
     version: 4.2.3(@types/react@18.3.3)(@wagmi/connectors@5.0.7)(@wagmi/core@2.10.5)(react-dom@18.3.1)(react@18.3.1)(viem@2.13.5)
@@ -2891,6 +2897,7 @@ packages:
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.7
+      napi-wasm: 1.1.0
     dev: false
     bundledDependencies:
       - napi-wasm
@@ -3754,6 +3761,30 @@ packages:
 
   /@tanstack/query-core@5.40.0:
     resolution: {integrity: sha512-eD8K8jsOIq0Z5u/QbvOmfvKKE/XC39jA7yv4hgpl/1SRiU+J8QCIwgM/mEHuunQsL87dcvnHqSVLmf9pD4CiaA==}
+    dev: false
+
+  /@tanstack/query-persist-client-core@5.40.0:
+    resolution: {integrity: sha512-dGyxR5uEYBDDU4ARCbm7PehBbMLTqgCG/O6Q4P8mwnu7JIqn2CgCu3iSSWzCrudEq2fhiRLgZ5/3Kx7ymto6PA==}
+    dependencies:
+      '@tanstack/query-core': 5.40.0
+    dev: false
+
+  /@tanstack/query-sync-storage-persister@5.40.0:
+    resolution: {integrity: sha512-My7nvaCj+WNX6NLKX6eWCHCSWHZrg5LHJrvFa3f1RT0IYAZHkW/ZRC2vhrmCfGnCDhoaPYnDZMaOLPEse8u+5A==}
+    dependencies:
+      '@tanstack/query-core': 5.40.0
+      '@tanstack/query-persist-client-core': 5.40.0
+    dev: false
+
+  /@tanstack/react-query-persist-client@5.40.1(@tanstack/react-query@5.40.1)(react@18.3.1):
+    resolution: {integrity: sha512-V++NTK4PhkEgm4PD0XxK0Iak+rJ+GlSeQZQ9moACMIyG/SyX/pWyzLizJKvZw8AA0MlgdWB2J6J2Qw252nZurA==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.40.1
+      react: ^18 || ^19
+    dependencies:
+      '@tanstack/query-persist-client-core': 5.40.0
+      '@tanstack/react-query': 5.40.1(react@18.3.1)
+      react: 18.3.1
     dev: false
 
   /@tanstack/react-query@5.40.1(react@18.3.1):
@@ -8323,6 +8354,10 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
     dev: true
+
+  /napi-wasm@1.1.0:
+    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
+    dev: false
 
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
