@@ -1,22 +1,35 @@
-import { useWeb3Modal } from "@web3modal/wagmi/react";
-import { useAccount } from "wagmi";
+import { useChainId, useConnect, useDisconnect, useAccount } from "wagmi";
 
-export const ConnectWalletButton = () => {
-  const { open } = useWeb3Modal();
-  const { isConnected, address } = useAccount();
-  const formatAddress = (addr: string | undefined) => {
-    return `${addr?.substring(0, 8)}...`;
-  };
+export function Connect() {
+  const chainId = useChainId();
+  const { disconnect } = useDisconnect();
+  const { connectors, connect, status, error } = useConnect();
+  const { address, isConnected } = useAccount();
 
   return (
-    <>
-      {isConnected ? (
-        <button onClick={() => open()}>
-          Connected to: {formatAddress(address)}
-        </button>
-      ) : (
-        <button onClick={() => open()}>Connect Wallet</button>
+    <div>
+      <h2>Connect</h2>
+      {isConnected && (
+        <div>
+          <div>Connected</div>
+          <div>{address}</div>
+          <button onClick={() => disconnect()} type="button">
+            Disconnect
+          </button>
+        </div>
+      
       )}
-    </>
+      {connectors.map((connector) => (
+        <button
+          key={connector.uid}
+          onClick={() => connect({ connector, chainId })}
+          type="button"
+        >
+          Connect Wallet
+        </button>
+      ))}
+      <div>{status}</div>
+      <div>{error?.message}</div>
+    </div>
   );
-};
+}

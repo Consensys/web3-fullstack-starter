@@ -12,7 +12,9 @@
   "dependencies": {
     "@metamask/sdk-react": "^0.18.0",
     "@openzeppelin/contracts": "^5.0.2",
-    "@tanstack/react-query": "^5.25.0",
+    "@tanstack/query-sync-storage-persister": "^5.40.0",
+    "@tanstack/react-query": "^5.40.1",
+    "@tanstack/react-query-persist-client": "^5.40.1",
     "@web3modal/wagmi": "^4.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

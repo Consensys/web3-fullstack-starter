@@ -1,29 +1,43 @@
 import { useAccount } from "wagmi";
-import { ConnectWalletButton } from "./components/ConnectButton";
+import { Connect } from "./components/ConnectButton";
 import { useWriteContract } from "wagmi";
 import { nftAbi, voteAbi } from "../utils/abis";
 import { useReadContract } from "wagmi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { isConnected, address } = useAccount();
+  const [hasVoted, setHasVoted] = useState(false);
   const { data: hash, writeContract } = useWriteContract();
 
   const { data: voter } = useReadContract({
+    // Create env file and add the contract address
     address: "0x6F4CBA788e772d9BA61ed544810336B21607bc18",
     abi: voteAbi,
     functionName: "voter",
     args: [address],
   });
 
+  const { data: userBalance } = useReadContract({
+    address: "0x9F1AeE16735e6Cc97e285257dF16453c39dbF97D",
+    abi: nftAbi,
+    functionName: "balanceOf",
+    args: [address],
+  });
+
   useEffect(() => {
-    console.log("Voter: ", voter);
-  }, [voter]);
+    if (voter) {
+      setHasVoted(true);
+    }
+    console.log("User Balance", Number(userBalance));
+  }, [voter, userBalance]);
 
   function mintNFT() {
     try {
+      // Create a minting state
       console.log("Minting...");
       writeContract({
+        // Create env file and add the contract address
         address: "0x9F1AeE16735e6Cc97e285257dF16453c39dbF97D",
         abi: nftAbi,
         functionName: "safeMint",
@@ -36,8 +50,10 @@ export default function Home() {
 
   function Vote() {
     try {
+      // Create a voting state
       console.log("Voting...");
       writeContract({
+        // Create env file and add the contract address
         address: "0x6F4CBA788e772d9BA61ed544810336B21607bc18",
         abi: voteAbi,
         functionName: "hasVoted",
@@ -61,14 +77,15 @@ export default function Home() {
             By RAD Team
           </a>
         </div>
-        <ConnectWalletButton />
+        <Connect />
       </div>
 
-      <div className="w-fit flex flex-col gap-3 place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[200px] md:after:w-[350px] after:translate-x-1/3 after:bg-gradient-conic after:from-green-200 after:via-green-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-green-700 before:dark:opacity-10 after:dark:from-green-900 after:dark:via-[#09ff01] after:dark:opacity-40 before:lg:h-[360px]">
-        <span className="text-3xl font-bold">Web3 Workshop</span>
+      {/* Create a component for this */}
+      <div className="space-y-4 text-center">
+        <span className="text-3xl w-full font-bold">Web3 Workshop</span>
         {isConnected && (
           <>
-            <div className="space-x-4">
+            <div className="flex flex-col gap-4 items-center">
               <button
                 className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
                 onClick={mintNFT}
@@ -76,35 +93,22 @@ export default function Home() {
                 Mint
               </button>
 
-              <button
-                className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
-                onClick={Vote}
-              >
-                Vote
-              </button>
+              {!hasVoted ? (
+                <button
+                  className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
+                  onClick={Vote}
+                >
+                  Vote
+                </button>
+              ) : (
+                <div className="text-xl text-green-600">Already Voted</div>
+              )}
             </div>
             {hash && <div>Transaction Hash: {hash}</div>}
+
+            <button onClick={() => hasMinted()}>See balance</button>
           </>
         )}
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="#"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Web3 using Consensys products.
-          </p>
-        </a>
       </div>
     </main>
   );
