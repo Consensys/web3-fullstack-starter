@@ -4,8 +4,10 @@ import { useWriteContract } from "wagmi";
 import { nftAbi, voteAbi } from "../utils/abis";
 import { useReadContract } from "wagmi";
 import { useEffect, useState } from "react";
+import { SvgCard } from "./components/SvgCard";
 
-const NFT_CONTRACT_ADDRESS = "0x9F1AeE16735e6Cc97e285257dF16453c39dbF97D";
+// Create a .env variable for these adresses
+const NFT_CONTRACT_ADDRESS = "0x701c5b02a8E5740B1c90b815354145aB7963eDcB";
 const VOTE_CONTRACT_ADDRESS = "0x6F4CBA788e772d9BA61ed544810336B21607bc18";
 
 export default function Home() {
@@ -14,7 +16,6 @@ export default function Home() {
   const { data: hash, writeContract } = useWriteContract();
 
   const { data: voter } = useReadContract({
-    // Create env file and add the contract address
     address: VOTE_CONTRACT_ADDRESS,
     abi: voteAbi,
     functionName: "voter",
@@ -22,7 +23,6 @@ export default function Home() {
   });
 
   const { data: userBalance } = useReadContract({
-    // Create env file and add the contract address
     address: NFT_CONTRACT_ADDRESS,
     abi: nftAbi,
     functionName: "balanceOf",
@@ -40,7 +40,6 @@ export default function Home() {
       // Create a minting state
       console.log("Minting...");
       writeContract({
-        // Create env file and add the contract address
         address: NFT_CONTRACT_ADDRESS,
         abi: nftAbi,
         functionName: "safeMint",
@@ -56,7 +55,6 @@ export default function Home() {
       // Create a voting state
       console.log("Voting...");
       writeContract({
-        // Create env file and add the contract address
         address: VOTE_CONTRACT_ADDRESS,
         abi: voteAbi,
         functionName: "hasVoted",
@@ -66,6 +64,32 @@ export default function Home() {
       console.error(error);
     }
   }
+
+  const { data: tokenIdsByOwner }: { data: any } = useReadContract({
+    address: NFT_CONTRACT_ADDRESS,
+    abi: nftAbi,
+    functionName: "getTokensByOwner",
+    args: [address],
+  });
+
+  const addNft = async () => {
+    try {
+      tokenIdsByOwner.map(async (id: bigint) => {
+        await window.ethereum?.request({
+          method: "wallet_watchAsset",
+          params: {
+            type: "ERC721",
+            options: {
+              address: NFT_CONTRACT_ADDRESS,
+              tokenId: id.toString(),
+            },
+          },
+        });
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <main className="relative flex flex-col justify-between items-center gap-20 min-h-screen mx-auto md:p-24">
@@ -99,6 +123,13 @@ export default function Home() {
                 Mint
               </button>
 
+              <button
+                className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
+                onClick={addNft}
+              >
+                Add NFT
+              </button>
+
               {!hasVoted ? (
                 <button
                   className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
@@ -109,6 +140,12 @@ export default function Home() {
               ) : (
                 <div className="text-xl text-green-600">Already Voted</div>
               )}
+              <div className="flex gap-4">
+                {tokenIdsByOwner &&
+                  tokenIdsByOwner.map((id: bigint) => {
+                    return <SvgCard key={id} tokenId={Number(id)} />;
+                  })}
+              </div>
             </div>
             {hash && <div>Transaction Hash: {hash}</div>}
           </>
