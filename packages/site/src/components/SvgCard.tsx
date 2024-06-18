@@ -15,7 +15,7 @@ export const SvgCard = ({ tokenId }: { tokenId: number }) => {
     <img
       width={200}
       height={200}
-      src={tokenSVG && `${tokenSVG}`}
+      src={`${tokenSVG}`}
       alt={`Ticket# ${tokenId}`}
     />
   );
