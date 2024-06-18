@@ -40,6 +40,13 @@ export const nftAbi = [
   },
   {
     type: "function",
+    name: "getTokensByOwner",
+    inputs: [{ name: "owner", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "isApprovedForAll",
     inputs: [
       { name: "owner", type: "address", internalType: "address" },
@@ -132,33 +139,9 @@ export const nftAbi = [
   },
   {
     type: "function",
-    name: "tokenByIndex",
-    inputs: [{ name: "index", type: "uint256", internalType: "uint256" }],
-    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "tokenOfOwnerByIndex",
-    inputs: [
-      { name: "owner", type: "address", internalType: "address" },
-      { name: "index", type: "uint256", internalType: "uint256" },
-    ],
-    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
     name: "tokenURI",
     inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
     outputs: [{ name: "", type: "string", internalType: "string" }],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "totalSupply",
-    inputs: [],
-    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -226,6 +209,52 @@ export const nftAbi = [
   },
   {
     type: "event",
+    name: "BatchMetadataUpdate",
+    inputs: [
+      {
+        name: "_fromTokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+      {
+        name: "_toTokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "MetadataUpdate",
+    inputs: [
+      {
+        name: "_tokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "NFTMinted",
+    inputs: [
+      { name: "_to", type: "address", indexed: true, internalType: "address" },
+      {
+        name: "_tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
     name: "OwnershipTransferred",
     inputs: [
       {
@@ -258,7 +287,6 @@ export const nftAbi = [
     ],
     anonymous: false,
   },
-  { type: "error", name: "ERC721EnumerableForbiddenBatchMint", inputs: [] },
   {
     type: "error",
     name: "ERC721IncorrectOwner",
@@ -305,14 +333,6 @@ export const nftAbi = [
     type: "error",
     name: "ERC721NonexistentToken",
     inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
-  },
-  {
-    type: "error",
-    name: "ERC721OutOfBoundsIndex",
-    inputs: [
-      { name: "owner", type: "address", internalType: "address" },
-      { name: "index", type: "uint256", internalType: "uint256" },
-    ],
   },
   {
     type: "error",
