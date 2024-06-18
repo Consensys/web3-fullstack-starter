@@ -18,7 +18,7 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
         bytes memory svg = abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
             "<style>.base { fill: black; font-family: serif; font-size: 14px;}</style>",
-            '<rect width="100%" height="100%" fill="white" ry="40" rx="40" style="stroke:#FF2F00; stroke-width:5; opacity:0.9" />',
+            '<rect width="100%" height="100%" fill="white" ry="40" rx="40" style="stroke:#eee; stroke-width:5; opacity:0.9" />',
             '<text x="50%" y="20%" class="base" dominant-baseline="middle" text-anchor="middle">',
             "Example NFT",
             "</text>",
