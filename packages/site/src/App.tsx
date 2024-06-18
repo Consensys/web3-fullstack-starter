@@ -5,6 +5,9 @@ import { nftAbi, voteAbi } from "../utils/abis";
 import { useReadContract } from "wagmi";
 import { useEffect, useState } from "react";
 
+const NFT_CONTRACT_ADDRESS = "0x9F1AeE16735e6Cc97e285257dF16453c39dbF97D";
+const VOTE_CONTRACT_ADDRESS = "0x6F4CBA788e772d9BA61ed544810336B21607bc18";
+
 export default function Home() {
   const { isConnected, address } = useAccount();
   const [hasVoted, setHasVoted] = useState(false);
@@ -12,14 +15,15 @@ export default function Home() {
 
   const { data: voter } = useReadContract({
     // Create env file and add the contract address
-    address: "0x6F4CBA788e772d9BA61ed544810336B21607bc18",
+    address: VOTE_CONTRACT_ADDRESS,
     abi: voteAbi,
     functionName: "voter",
     args: [address],
   });
 
   const { data: userBalance } = useReadContract({
-    address: "0x9F1AeE16735e6Cc97e285257dF16453c39dbF97D",
+    // Create env file and add the contract address
+    address: NFT_CONTRACT_ADDRESS,
     abi: nftAbi,
     functionName: "balanceOf",
     args: [address],
@@ -29,8 +33,7 @@ export default function Home() {
     if (voter) {
       setHasVoted(true);
     }
-    console.log("User Balance", Number(userBalance));
-  }, [voter, userBalance]);
+  }, [voter]);
 
   function mintNFT() {
     try {
@@ -38,7 +41,7 @@ export default function Home() {
       console.log("Minting...");
       writeContract({
         // Create env file and add the contract address
-        address: "0x9F1AeE16735e6Cc97e285257dF16453c39dbF97D",
+        address: NFT_CONTRACT_ADDRESS,
         abi: nftAbi,
         functionName: "safeMint",
         args: [address],
@@ -54,7 +57,7 @@ export default function Home() {
       console.log("Voting...");
       writeContract({
         // Create env file and add the contract address
-        address: "0x6F4CBA788e772d9BA61ed544810336B21607bc18",
+        address: VOTE_CONTRACT_ADDRESS,
         abi: voteAbi,
         functionName: "hasVoted",
         args: [address],
@@ -86,6 +89,9 @@ export default function Home() {
         {isConnected && (
           <>
             <div className="flex flex-col gap-4 items-center">
+              <div>
+                {Number(userBalance) && `You own ${Number(userBalance)} NFTs`}
+              </div>
               <button
                 className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
                 onClick={mintNFT}
@@ -105,8 +111,6 @@ export default function Home() {
               )}
             </div>
             {hash && <div>Transaction Hash: {hash}</div>}
-
-            <button onClick={() => hasMinted()}>See balance</button>
           </>
         )}
       </div>

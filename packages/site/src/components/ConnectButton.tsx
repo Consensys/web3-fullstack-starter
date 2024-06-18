@@ -3,33 +3,32 @@ import { useChainId, useConnect, useDisconnect, useAccount } from "wagmi";
 export function Connect() {
   const chainId = useChainId();
   const { disconnect } = useDisconnect();
-  const { connectors, connect, status, error } = useConnect();
+  const { connectors, connect } = useConnect();
   const { address, isConnected } = useAccount();
 
   return (
     <div>
-      <h2>Connect</h2>
-      {isConnected && (
-        <div>
-          <div>Connected</div>
-          <div>{address}</div>
-          <button onClick={() => disconnect()} type="button">
+      {isConnected ? (
+        <div className="flex gap-4 items-center">
+          <div className="w-20 truncate">{address}</div>
+          <button className="bg-red-800 text-red-100 px-4 py-2 rounded-md hover:bg-opacity-80 shadow-md hover:shadow-lg duration-150" onClick={() => disconnect()} type="button">
             Disconnect
           </button>
         </div>
-      
+      ) : (
+        <div>
+          {connectors.map((connector) => (
+            <button
+              key={connector.uid}
+              onClick={() => connect({ connector, chainId })}
+              type="button"
+              className="bg-gray-800 text-white px-4 py-2 rounded-md"
+            >
+              Connect Wallet
+            </button>
+          ))}
+        </div>
       )}
-      {connectors.map((connector) => (
-        <button
-          key={connector.uid}
-          onClick={() => connect({ connector, chainId })}
-          type="button"
-        >
-          Connect Wallet
-        </button>
-      ))}
-      <div>{status}</div>
-      <div>{error?.message}</div>
     </div>
   );
 }

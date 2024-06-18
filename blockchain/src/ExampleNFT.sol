@@ -12,11 +12,9 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
 
     constructor() ERC721("ExampleNFT", "XPL") Ownable(msg.sender) {}
 
-    function generateSVGImage(uint256 tokenId)
-        public
-        pure
-        returns (string memory)
-    {
+    function generateSVGImage(
+        uint256 tokenId
+    ) public pure returns (string memory) {
         bytes memory svg = abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
             "<style>.base { fill: black; font-family: serif; font-size: 14px;}</style>",
@@ -40,6 +38,19 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
                     Base64.encode(svg)
                 )
             );
+    }
+
+    function getTokensByOwner(
+        address owner
+    ) public view returns (uint256[] memory) {
+        uint256 tokenCount = balanceOf(owner);
+        uint256[] memory tokenIds = new uint256[](tokenCount);
+        for (uint256 i = 0; i < _nextTokenId; i++) {
+            if (ownerOf(i) == owner) {
+                tokenIds[i] = i;
+            }
+        }
+        return tokenIds;
     }
 
     function safeMint(address minter) public onlyOwner {
