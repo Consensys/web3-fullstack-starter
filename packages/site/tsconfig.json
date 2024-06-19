@@ -9,10 +9,6 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Hardhat */
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

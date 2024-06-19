@@ -188,16 +188,11 @@ VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
 ```
 
 
-
-## Buid out our Contracts
-
-
 ## Init Repo instructions
 In the `blockchain` folder install the openzeppelin contracts by running the following command:
 ``` 
 forge install --no-git OpenZeppelin/openzeppelin-contracts
 ```
-
 
 
 ### Blockchain Tests:
@@ -223,3 +218,63 @@ Uses vm.prank to simulate a call from a non-owner address and expects a revert.
 Checks that _nextTokenId increments correctly after each mint.
 
 These tests will help ensure that the ExampleNFT contract functions correctly in various scenarios.
+
+## Frontend Dapp
+
+Our CLI has scaffolded out a basic ViteJS + React & TypeScript application with TailwindCSS. Styling is beyond the scope of this workshop, so let's get the 
+
+## Frontend NPM Packages
+
+@metamask/sdk-react @openzeppelin/contracts hardhat 
+
+## gitignore
+
+Add the following to .gitignore:
+
+```
+node_modules
+.env
+```
+
+
+## tsconfig
+
+We need to add `paths` to our tsconfig.json
+
+Question for Alejandro: Do we need the /* Hardhat */ settings (comments)
+
+```
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "paths": {
+      "@out/*": ["../../blockchain/out/*"]
+    },
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Hardhat */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src", "src/wagmi.config.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+```
+

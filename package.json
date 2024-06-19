@@ -3,16 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install-openzeppelin": "cd blockchain && pnpm install && forge install --no-git OpenZeppelin/openzeppelin-contracts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "workspaces": [
-    "packages/site"
-  ],
-  "dependencies": {
-    "base64-sol": "^1.1.0"
-  }
+    "packages/site",
+    "blockchain"
+  ]
 }
