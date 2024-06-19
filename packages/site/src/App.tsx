@@ -1,15 +1,20 @@
 import { useAccount } from "wagmi";
 import { Connect } from "./components/ConnectButton";
-import { useWriteContract } from "wagmi";
 import { nftAbi, voteAbi } from "../utils/abis";
-import { useReadContract } from "wagmi";
+import {
+  useReadContract,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
 import { useEffect, useState } from "react";
 import { SvgCard } from "./components/SvgCard";
 
 export default function Home() {
   const { isConnected, address } = useAccount();
   const [hasVoted, setHasVoted] = useState(false);
-  const { data: hash, writeContract } = useWriteContract();
+  const { data: hash, writeContract, isSuccess } = useWriteContract();
+
+  const result = useWaitForTransactionReceipt({ hash });
 
   const { data: voter } = useReadContract({
     address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
@@ -25,11 +30,23 @@ export default function Home() {
     args: [address],
   });
 
+  const { data: tokenIdsByOwner, refetch }: { data: any; refetch: any } =
+  useReadContract({
+    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+    abi: nftAbi,
+    functionName: "getTokensByOwner",
+    args: [address],
+  });
+
   useEffect(() => {
     if (voter) {
       setHasVoted(true);
     }
   }, [voter]);
+
+  useEffect(() => {
+    result && refetch();
+  }, [isSuccess, result]);
 
   function mintNFT() {
     try {
@@ -60,13 +77,6 @@ export default function Home() {
       console.error(error);
     }
   }
-
-  const { data: tokenIdsByOwner }: { data: any } = useReadContract({
-    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
-    abi: nftAbi,
-    functionName: "getTokensByOwner",
-    args: [address],
-  });
 
   const addNft = async () => {
     try {
