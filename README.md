@@ -166,15 +166,19 @@ We will need to create the command that we need to do this:
 forge build
 ```
 
+ensure you are in the blockchain directory....
+
 ```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA API KEY> --private-key <your_private_key> src/MyContract.sol:MyContract
+forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/ExampleNFT.sol:ExampleNFT
 ```
 
 The voting contract needs an owner so this command is slightly modified:
 
 ```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA API KEY> --private-key <your_private_key> src/MyContract.sol:MyContract --constructor-args <your_public_key>
+forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
 ```
+
+since we are passsing a contructor arg for the owner we need the public key on the second command for deploying voting contract.
 
 Do not store your Infura or private key anywhere in your project.
 
@@ -183,8 +187,8 @@ Now that we have deployed both contracts, let's be aware of the contract address
 Create a `.env` file in `packages/site`
 
 ```
-EXAMPLE_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
-VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_EXAMPLE_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
 ```
 
 

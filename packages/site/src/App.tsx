@@ -6,24 +6,20 @@ import { useReadContract } from "wagmi";
 import { useEffect, useState } from "react";
 import { SvgCard } from "./components/SvgCard";
 
-// Create a .env variable for these adresses
-const NFT_CONTRACT_ADDRESS = "0x701c5b02a8E5740B1c90b815354145aB7963eDcB";
-const VOTE_CONTRACT_ADDRESS = "0x6F4CBA788e772d9BA61ed544810336B21607bc18";
-
 export default function Home() {
   const { isConnected, address } = useAccount();
   const [hasVoted, setHasVoted] = useState(false);
   const { data: hash, writeContract } = useWriteContract();
 
   const { data: voter } = useReadContract({
-    address: VOTE_CONTRACT_ADDRESS,
+    address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
     abi: voteAbi,
     functionName: "voter",
     args: [address],
   });
 
   const { data: userBalance } = useReadContract({
-    address: NFT_CONTRACT_ADDRESS,
+    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "balanceOf",
     args: [address],
@@ -40,7 +36,7 @@ export default function Home() {
       // Create a minting state
       console.log("Minting...");
       writeContract({
-        address: NFT_CONTRACT_ADDRESS,
+        address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
         abi: nftAbi,
         functionName: "safeMint",
         args: [address],
@@ -55,7 +51,7 @@ export default function Home() {
       // Create a voting state
       console.log("Voting...");
       writeContract({
-        address: VOTE_CONTRACT_ADDRESS,
+        address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
         abi: voteAbi,
         functionName: "hasVoted",
         args: [address],
@@ -66,7 +62,7 @@ export default function Home() {
   }
 
   const { data: tokenIdsByOwner }: { data: any } = useReadContract({
-    address: NFT_CONTRACT_ADDRESS,
+    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "getTokensByOwner",
     args: [address],
@@ -80,7 +76,7 @@ export default function Home() {
           params: {
             type: "ERC721",
             options: {
-              address: NFT_CONTRACT_ADDRESS,
+              address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
               tokenId: id.toString(),
             },
           },
