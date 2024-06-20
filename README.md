@@ -158,6 +158,62 @@ We will be using `base64-sol/base64.sol`
 
 Remove the `blockchain/test` directory for now and we will cover tests later.
 
+## Saving Wallet private key with Cast
+
+This is an example of saving a private key with the alias/name of myOwnKey
+
+run:
+```bash
+cast wallet import myOwnKey --interactive
+```
+
+After running this command you will be able to enter a private key and password, both of which will be obfuscated on the screen (if you type or paste it will appear nothing is happening but it is)
+
+Once complete you will see:
+
+```bash
+`myOwnKey` keystore was saved successfully. Address: 0x8d4321.....
+```
+
+Then you can use your private key for any other commands:
+
+
+```bash
+forge script WhateverSolScriptName.sol --rpc-url http://localhost:8586 --account myOwnKey --sender 0x8d4321.....
+```
+
+Where sender is your public key and myOwnKey is the name of your wallet alias/name
+
+## Saving an API key
+
+You may want to store your Infura or other API keys for use with Forge in an environment variable that your command line can reference. I'm using an Infura account, so here is how I would do that:
+
+using zsh:
+
+```zsh
+echo 'export INFURA_API_KEY=your_api_ke' >> ~/.zshrc
+source ~/.zshrc
+```
+
+using bash:
+
+```bash
+echo 'export INFURA_API_KEY=your_api_key' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Once you have run those commands you can check the value and ensure it's there with the following command:
+
+```bash
+echo $INFURA_API_KEY
+```
+
+And with that example you can also see how you would use that variable in a command, with forge it might look something like this:
+
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --private-key <PRIVATE_KEY> src/MyNFT.sol:MyNFT
+```
+
 ## Deploying our contracts to Linea
 
 We will need to create the command that we need to do this:
@@ -172,11 +228,25 @@ ensure you are in the blockchain directory....
 forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/ExampleNFT.sol:ExampleNFT
 ```
 
+or using cast and env variables:
+
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myOwnKey src/ExampleNFT.sol:ExampleNFT
+```
+
 The voting contract needs an owner so this command is slightly modified:
 
 ```bash
 forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
 ```
+
+or using cast and env variables:
+
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myOwnKey src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
+```
+
+Where `<PUBLIC_KEY>` is typed manually because it's not a secret and it's a constructor arg for the contract.
 
 since we are passsing a contructor arg for the owner we need the public key on the second command for deploying voting contract.
 
