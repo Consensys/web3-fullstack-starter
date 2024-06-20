@@ -158,65 +158,11 @@ contract Voting is ERC721 {
 In our video workshop we will walk through the code for each contract and explain.
 
 
-We will be using `base64-sol/base64.sol`
+We will be using `base64-sol/base64.sol` which was installed with the openzeppelin script.
 
-Remove the `blockchain/test` directory for now and we will cover tests later.
+## Obfuscating and keeping secrets
 
-## Saving Wallet private key with Cast
-
-This is an example of saving a private key with the alias/name of myOwnKey
-
-run:
-```bash
-cast wallet import myOwnKey --interactive
-```
-
-After running this command you will be able to enter a private key and password, both of which will be obfuscated on the screen (if you type or paste it will appear nothing is happening but it is)
-
-Once complete you will see:
-
-```bash
-`myOwnKey` keystore was saved successfully. Address: 0x8d4321.....
-```
-
-Then you can use your private key for any other commands:
-
-
-```bash
-forge script WhateverSolScriptName.sol --rpc-url http://localhost:8586 --account myOwnKey --sender 0x8d4321.....
-```
-
-Where sender is your public key and myOwnKey is the name of your wallet alias/name
-
-## Saving an API key
-
-You may want to store your Infura or other API keys for use with Forge in an environment variable that your command line can reference. I'm using an Infura account, so here is how I would do that:
-
-using zsh:
-
-```zsh
-echo 'export INFURA_API_KEY=your_api_ke' >> ~/.zshrc
-source ~/.zshrc
-```
-
-using bash:
-
-```bash
-echo 'export INFURA_API_KEY=your_api_key' >> ~/.bashrc
-source ~/.bashrc
-```
-
-Once you have run those commands you can check the value and ensure it's there with the following command:
-
-```bash
-echo $INFURA_API_KEY
-```
-
-And with that example you can also see how you would use that variable in a command, with forge it might look something like this:
-
-```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --private-key <PRIVATE_KEY> src/MyNFT.sol:MyNFT
-```
+When working on a fullstack dapp it's good to know how to use Cast with Forge and store environment variables for terminal commands so that if you are working with others or sharing a screen, you can use variable names and options for commands that deploy contracts ets.. See the section on [Saving Wallet private key with Cast](#saving-wallet-private-key-with-cast)
 
 ## Deploying our contracts to Linea
 
@@ -252,7 +198,7 @@ forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --acco
 
 Where `<PUBLIC_KEY>` is typed manually because it's not a secret and it's a constructor arg for the contract.
 
-since we are passsing a contructor arg for the owner we need the public key on the second command for deploying voting contract.
+since we are passing a constructor arg for the owner we need the public key on the second command for deploying voting contract.
 
 Do not store your Infura or private key anywhere in your project.
 
@@ -268,42 +214,672 @@ VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
 
 ## Init Repo instructions
 In the `blockchain` folder install the openzeppelin contracts by running the following command:
-``` 
+
+```bash
 forge install --no-git OpenZeppelin/openzeppelin-contracts
 ```
 
 
-### Blockchain Tests:
-
-Explanation:
-
-**test_SvgImage**
-Initializes a `tokenId` and calls the `generateSVGImage` function with this `tokenId`.
-Constructs the expected SVG image string based on the `tokenId`.
-Asserts that the generated SVG image is equal to the expected SVG image using `assertEq`.
-This test ensures that the `generateSVGImage` function returns the correct SVG image data for a given `tokenId`.
-
-**test_MintMultipleTokens**:
-Mints two tokens and verifies that each token is owned by the correct address.
-
-**test_GenerateSvgForDifferentTokenIds**:
-Generates SVG images for two different token IDs and checks that they are not the same.
-
-**test_OnlyOwnerCanMint**:
-Uses vm.prank to simulate a call from a non-owner address and expects a revert.
-
-**test_NextTokenIdIncrement**:
-Checks that _nextTokenId increments correctly after each mint.
-
-These tests will help ensure that the ExampleNFT contract functions correctly in various scenarios.
-
 ## Frontend Dapp
 
-Our CLI has scaffolded out a basic ViteJS + React & TypeScript application with TailwindCSS. Styling is beyond the scope of this workshop, so let's get the 
+Our CLI has scaffolded out a basic ViteJS + React & TypeScript application with TailwindCSS. Styling is beyond the scope of this workshop, but we will be copying in components and JSX that have tailwind styles.
 
-## Frontend NPM Packages
+We already have a `COnnectButton` component that was installed with our CLI. 
 
-@metamask/sdk-react @openzeppelin/contracts hardhat 
+We need to add another file in the components directory named: `SvgCard.tsx` and add the following code to it:
+
+```tsx
+import { useReadContract } from "wagmi";
+import { nftAbi } from "../../utils/abis";
+
+export const SvgCard = ({ tokenId }: { tokenId: number }) => {
+  const { data: tokenSVG } = useReadContract({
+    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+    abi: nftAbi,
+    functionName: "tokenURI",
+    args: [tokenId],
+  });
+
+  return (
+    <img
+      width={200}
+      height={200}
+      src={`${tokenSVG}`}
+      alt={`Ticket# ${tokenId}`}
+    />
+  );
+};
+```
+
+We will need to copy in the abi for the contracts into the `utility` directory, so let's create that directory and a file named `abis.ts` and add the following abi code:
+
+```ts
+export const nftAbi = [
+  { type: "constructor", inputs: [], stateMutability: "nonpayable" },
+  {
+    type: "function",
+    name: "_nextTokenId",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "approve",
+    inputs: [
+      { name: "to", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    inputs: [{ name: "owner", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "generateSVGImage",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "pure",
+  },
+  {
+    type: "function",
+    name: "getApproved",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getTokensByOwner",
+    inputs: [{ name: "owner", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "isApprovedForAll",
+    inputs: [
+      { name: "owner", type: "address", internalType: "address" },
+      { name: "operator", type: "address", internalType: "address" },
+    ],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "name",
+    inputs: [],
+    outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "owner",
+    inputs: [],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "ownerOf",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "renounceOwnership",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "safeMint",
+    inputs: [{ name: "minter", type: "address", internalType: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "safeTransferFrom",
+    inputs: [
+      { name: "from", type: "address", internalType: "address" },
+      { name: "to", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "safeTransferFrom",
+    inputs: [
+      { name: "from", type: "address", internalType: "address" },
+      { name: "to", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+      { name: "data", type: "bytes", internalType: "bytes" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setApprovalForAll",
+    inputs: [
+      { name: "operator", type: "address", internalType: "address" },
+      { name: "approved", type: "bool", internalType: "bool" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "supportsInterface",
+    inputs: [{ name: "interfaceId", type: "bytes4", internalType: "bytes4" }],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "symbol",
+    inputs: [],
+    outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "tokenURI",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "transferFrom",
+    inputs: [
+      { name: "from", type: "address", internalType: "address" },
+      { name: "to", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "transferOwnership",
+    inputs: [{ name: "newOwner", type: "address", internalType: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "event",
+    name: "Approval",
+    inputs: [
+      {
+        name: "owner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "approved",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "ApprovalForAll",
+    inputs: [
+      {
+        name: "owner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "operator",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      { name: "approved", type: "bool", indexed: false, internalType: "bool" },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "BatchMetadataUpdate",
+    inputs: [
+      {
+        name: "_fromTokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+      {
+        name: "_toTokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "MetadataUpdate",
+    inputs: [
+      {
+        name: "_tokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "NFTMinted",
+    inputs: [
+      { name: "_to", type: "address", indexed: true, internalType: "address" },
+      {
+        name: "_tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "OwnershipTransferred",
+    inputs: [
+      {
+        name: "previousOwner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "newOwner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "Transfer",
+    inputs: [
+      { name: "from", type: "address", indexed: true, internalType: "address" },
+      { name: "to", type: "address", indexed: true, internalType: "address" },
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "error",
+    name: "ERC721IncorrectOwner",
+    inputs: [
+      { name: "sender", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+      { name: "owner", type: "address", internalType: "address" },
+    ],
+  },
+  {
+    type: "error",
+    name: "ERC721InsufficientApproval",
+    inputs: [
+      { name: "operator", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+    ],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidApprover",
+    inputs: [{ name: "approver", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidOperator",
+    inputs: [{ name: "operator", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidOwner",
+    inputs: [{ name: "owner", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidReceiver",
+    inputs: [{ name: "receiver", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidSender",
+    inputs: [{ name: "sender", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721NonexistentToken",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+  },
+  {
+    type: "error",
+    name: "OwnableInvalidOwner",
+    inputs: [{ name: "owner", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "OwnableUnauthorizedAccount",
+    inputs: [{ name: "account", type: "address", internalType: "address" }],
+  },
+];
+
+export const voteAbi = [
+  {
+    type: "constructor",
+    inputs: [{ name: "_owner", type: "address", internalType: "address" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "approve",
+    inputs: [
+      { name: "to", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    inputs: [{ name: "owner", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getApproved",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getVoter",
+    inputs: [{ name: "_index", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "hasVoted",
+    inputs: [{ name: "voting", type: "address", internalType: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "isApprovedForAll",
+    inputs: [
+      { name: "owner", type: "address", internalType: "address" },
+      { name: "operator", type: "address", internalType: "address" },
+    ],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "name",
+    inputs: [],
+    outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "owner",
+    inputs: [],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "ownerOf",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "safeTransferFrom",
+    inputs: [
+      { name: "from", type: "address", internalType: "address" },
+      { name: "to", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "safeTransferFrom",
+    inputs: [
+      { name: "from", type: "address", internalType: "address" },
+      { name: "to", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+      { name: "data", type: "bytes", internalType: "bytes" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "setApprovalForAll",
+    inputs: [
+      { name: "operator", type: "address", internalType: "address" },
+      { name: "approved", type: "bool", internalType: "bool" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "supportsInterface",
+    inputs: [{ name: "interfaceId", type: "bytes4", internalType: "bytes4" }],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "symbol",
+    inputs: [],
+    outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "tokenURI",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "transferFrom",
+    inputs: [
+      { name: "from", type: "address", internalType: "address" },
+      { name: "to", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "voter",
+    inputs: [{ name: "", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "voters",
+    inputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "event",
+    name: "Approval",
+    inputs: [
+      {
+        name: "owner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "approved",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "ApprovalForAll",
+    inputs: [
+      {
+        name: "owner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "operator",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      { name: "approved", type: "bool", indexed: false, internalType: "bool" },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "Transfer",
+    inputs: [
+      { name: "from", type: "address", indexed: true, internalType: "address" },
+      { name: "to", type: "address", indexed: true, internalType: "address" },
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "Voted",
+    inputs: [
+      {
+        name: "voter",
+        type: "address",
+        indexed: false,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "error",
+    name: "ERC721IncorrectOwner",
+    inputs: [
+      { name: "sender", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+      { name: "owner", type: "address", internalType: "address" },
+    ],
+  },
+  {
+    type: "error",
+    name: "ERC721InsufficientApproval",
+    inputs: [
+      { name: "operator", type: "address", internalType: "address" },
+      { name: "tokenId", type: "uint256", internalType: "uint256" },
+    ],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidApprover",
+    inputs: [{ name: "approver", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidOperator",
+    inputs: [{ name: "operator", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidOwner",
+    inputs: [{ name: "owner", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidReceiver",
+    inputs: [{ name: "receiver", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721InvalidSender",
+    inputs: [{ name: "sender", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "ERC721NonexistentToken",
+    inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+  },
+];
+```
+
+At this point the abi import in our `SvgCard.tsx` should be good to go!
 
 ## gitignore
 
@@ -318,8 +894,6 @@ node_modules
 
 We need to add `paths` to our tsconfig.json
 
-Question for Alejandro: Do we need the /* Hardhat */ settings (comments)
-
 ```
 {
   "compilerOptions": {
@@ -331,10 +905,6 @@ Question for Alejandro: Do we need the /* Hardhat */ settings (comments)
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-
-    /* Hardhat */
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -355,3 +925,62 @@ Question for Alejandro: Do we need the /* Hardhat */ settings (comments)
 }
 ```
 
+## Additional Resources
+
+Below are some optional resources you may need to store environment variables etc..
+
+### Saving Wallet private key with Cast
+
+This is an example of saving a private key with the alias/name of myOwnKey
+
+run:
+```bash
+cast wallet import myOwnKey --interactive
+```
+
+After running this command you will be able to enter a private key and password, both of which will be obfuscated on the screen (if you type or paste it will appear nothing is happening but it is)
+
+Once complete you will see:
+
+```bash
+`myOwnKey` keystore was saved successfully. Address: 0x8d4321.....
+```
+
+Then you can use your private key for any other commands:
+
+
+```bash
+forge script WhateverSolScriptName.sol --rpc-url http://localhost:8586 --account myOwnKey --sender 0x8d4321.....
+```
+
+Where sender is your public key and myOwnKey is the name of your wallet alias/name
+
+### Saving an API key
+
+You may want to store your Infura or other API keys for use with Forge in an environment variable that your command line can reference. I'm using an Infura account, so here is how I would do that:
+
+using zsh:
+
+```zsh
+echo 'export INFURA_API_KEY=your_api_ke' >> ~/.zshrc
+source ~/.zshrc
+```
+
+using bash:
+
+```bash
+echo 'export INFURA_API_KEY=your_api_key' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Once you have run those commands you can check the value and ensure it's there with the following command:
+
+```bash
+echo $INFURA_API_KEY
+```
+
+And with that example you can also see how you would use that variable in a command, with forge it might look something like this:
+
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --private-key <PRIVATE_KEY> src/MyNFT.sol:MyNFT
+```
