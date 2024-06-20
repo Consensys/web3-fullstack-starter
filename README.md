@@ -64,9 +64,13 @@ Remove `Counter.sol` from `src` and delete `script` directory.
 This will add the contracts needed for our project to use OpenZeppelin in the `blockchain/lib` directory.
 
 
-In the `blockchain/src` directory. Create two files named: `ExampleNFT.sol` and `Voting.sol` and copy the following contract code that our frontend will work with:
+In the `blockchain/src` directory, create two files: 
+- `ExampleNFT.sol`
+- `Voting.sol`
 
-```sol title="ExampleNFT.sol"
+Cpy the following contract code that our frontend will work with:
+
+```solidity title="ExampleNFT.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -120,7 +124,7 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
 }
 ```
 
-```sol title="Voting.sol"
+```solidity title="Voting.sol"
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity ^0.8.20;
@@ -309,7 +313,6 @@ Add the following to .gitignore:
 node_modules
 .env
 ```
-
 
 ## tsconfig
 
