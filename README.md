@@ -224,7 +224,44 @@ forge install --no-git OpenZeppelin/openzeppelin-contracts
 
 Our CLI has scaffolded out a basic ViteJS + React & TypeScript application with TailwindCSS. Styling is beyond the scope of this workshop, but we will be copying in components and JSX that have tailwind styles.
 
-We already have a `COnnectButton` component that was installed with our CLI. 
+We already have a `ConnectButton` component that was installed with our CLI. However, we want to make some minor adjustments and styling changes, add the following code and update the entire `src/components/ConnectButton.tsx` file:
+
+```tsx
+import { useChainId, useConnect, useDisconnect, useAccount } from "wagmi";
+
+export function Connect() {
+  const chainId = useChainId();
+  const { disconnect } = useDisconnect();
+  const { connectors, connect } = useConnect();
+  const { address, isConnected } = useAccount();
+
+  return (
+    <div>
+      {isConnected ? (
+        <div className="flex gap-4 items-center">
+          <div className="w-20 truncate">{address}</div>
+          <button className="bg-red-800 text-red-100 px-4 py-2 rounded-md hover:bg-opacity-80 shadow-md hover:shadow-lg duration-150" onClick={() => disconnect()} type="button">
+            Disconnect
+          </button>
+        </div>
+      ) : (
+        <div>
+          {connectors.map((connector) => (
+            <button
+              key={connector.uid}
+              onClick={() => connect({ connector, chainId })}
+              type="button"
+              className="bg-gray-800 text-white px-4 py-2 rounded-md"
+            >
+              Connect Wallet
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
 
 We need to add another file in the components directory named: `SvgCard.tsx` and add the following code to it:
 
@@ -251,7 +288,11 @@ export const SvgCard = ({ tokenId }: { tokenId: number }) => {
 };
 ```
 
-We will need to copy in the abi for the contracts into the `utility` directory, so let's create that directory and a file named `abis.ts` and add the following abi code:
+Let's create a new folder in the `packages/site/` directory named `utils`.
+
+We will need to copy in the abi for the contracts into the `utility` directory into a file named `abis.ts` and add the following abi code:
+
+ > you could also copy the abi from the blockchain directory but this is formatted better:
 
 ```ts
 export const nftAbi = [
@@ -881,20 +922,188 @@ export const voteAbi = [
 
 At this point the abi import in our `SvgCard.tsx` should be good to go!
 
+Finally we will add the code for our `src/App.tsx` which has the majority of the code and we can go over what all of this does:
+
+```ts
+import { useAccount } from "wagmi";
+import { Connect } from "./components/ConnectButton";
+import { nftAbi, voteAbi } from "../utils/abis";
+import {
+  useReadContract,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+import { useEffect, useState } from "react";
+import { SvgCard } from "./components/SvgCard";
+
+export default function Home() {
+  const { isConnected, address } = useAccount();
+  const [hasVoted, setHasVoted] = useState(false);
+  const { data: hash, writeContract, isSuccess } = useWriteContract();
+
+  const result = useWaitForTransactionReceipt({ hash });
+
+  const { data: voter } = useReadContract({
+    address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
+    abi: voteAbi,
+    functionName: "voter",
+    args: [address],
+  });
+
+  const { data: userBalance } = useReadContract({
+    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+    abi: nftAbi,
+    functionName: "balanceOf",
+    args: [address],
+  });
+
+  const { data: tokenIdsByOwner, refetch }: { data: any; refetch: any } =
+  useReadContract({
+    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+    abi: nftAbi,
+    functionName: "getTokensByOwner",
+    args: [address],
+  });
+
+  useEffect(() => {
+    if (voter) {
+      setHasVoted(true);
+    }
+  }, [voter]);
+
+  useEffect(() => {
+    result && refetch();
+  }, [isSuccess, result]);
+
+  function mintNFT() {
+    try {
+      // Create a minting state
+      console.log("Minting...");
+      writeContract({
+        address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+        abi: nftAbi,
+        functionName: "safeMint",
+        args: [address],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function Vote() {
+    try {
+      // Create a voting state
+      console.log("Voting...");
+      writeContract({
+        address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
+        abi: voteAbi,
+        functionName: "hasVoted",
+        args: [address],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const addNft = async () => {
+    try {
+      tokenIdsByOwner.map(async (id: bigint) => {
+        await window.ethereum?.request({
+          method: "wallet_watchAsset",
+          params: {
+            type: "ERC721",
+            options: {
+              address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+              tokenId: id.toString(),
+            },
+          },
+        });
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <main className="relative flex flex-col justify-between items-center gap-20 min-h-screen mx-auto md:p-24">
+      <div className=" flex justify-center pt-10 md:pt-0 max-w-5xl w-full lg:items-center lg:justify-between font-mono text-sm lg:flex">
+        <div className="absolute bottom-0 left-0 flex w-full items-end justify-center lg:static lg:h-auto lg:w-auto lg:bg-none">
+          <a
+            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            By RAD Team
+          </a>
+        </div>
+        <Connect />
+      </div>
+
+      {/* Create a component for this */}
+      <div className="space-y-4 text-center">
+        <span className="text-3xl w-full font-bold">Web3 Workshop</span>
+        {isConnected && (
+          <>
+            <div className="flex flex-col gap-4 items-center">
+              <div>
+                {Number(userBalance) && `You own ${Number(userBalance)} NFTs`}
+              </div>
+              <button
+                className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
+                onClick={mintNFT}
+              >
+                Mint
+              </button>
+
+              <button
+                className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
+                onClick={addNft}
+              >
+                Add NFT
+              </button>
+
+              {!hasVoted ? (
+                <button
+                  className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
+                  onClick={Vote}
+                >
+                  Vote
+                </button>
+              ) : (
+                <div className="text-xl text-green-600">Already Voted</div>
+              )}
+              <div className="flex gap-4">
+                {tokenIdsByOwner &&
+                  tokenIdsByOwner.map((id: bigint) => {
+                    return <SvgCard key={id} tokenId={Number(id)} />;
+                  })}
+              </div>
+            </div>
+            {hash && <div>Transaction Hash: {hash}</div>}
+          </>
+        )}
+      </div>
+    </main>
+  );
+}
+```
+
 ## gitignore
 
-Add the following to .gitignore:
+Add the following to .gitignore file at the root:
 
 ```
 node_modules
 .env
+pnpm-lock.yaml
 ```
 
 ## tsconfig
 
 We need to add `paths` to our tsconfig.json
 
-```
+```json
 {
   "compilerOptions": {
     "target": "ES2020",
@@ -924,6 +1133,10 @@ We need to add `paths` to our tsconfig.json
   "references": [{ "path": "./tsconfig.node.json" }]
 }
 ```
+
+Our `main.tsx` is already setup the way we need it from our CLI.
+
+
 
 ## Additional Resources
 
