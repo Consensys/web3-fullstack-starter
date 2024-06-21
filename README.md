@@ -68,7 +68,7 @@ In the `blockchain/src` directory, create two files:
 - `ExampleNFT.sol`
 - `Voting.sol`
 
-Cpy the following contract code that our frontend will work with:
+Copy the following contract code that our frontend will work with:
 
 ```solidity title="ExampleNFT.sol"
 // SPDX-License-Identifier: MIT
@@ -160,11 +160,19 @@ In our video workshop we will walk through the code for each contract and explai
 
 We will be using `base64-sol/base64.sol` which was installed with the openzeppelin script.
 
+In the root directory let's install our dependencies:
+
+```bash
+pnpm install
+```
+
 ## Obfuscating and keeping secrets
 
 When working on a fullstack dapp it's good to know how to use Cast with Forge and store environment variables for terminal commands so that if you are working with others or sharing a screen, you can use variable names and options for commands that deploy contracts ets.. See the section on [Saving Wallet private key with Cast](#saving-wallet-private-key-with-cast)
 
 ## Deploying our contracts to Linea
+
+Change directory into the `blockchain` directory to run the forge commands.
 
 We will need to create the command that we need to do this:
 
@@ -211,13 +219,7 @@ VITE_EXAMPLE_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
 VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
 ```
 
-
-## Init Repo instructions
-In the `blockchain` folder install the openzeppelin contracts by running the following command:
-
-```bash
-forge install --no-git OpenZeppelin/openzeppelin-contracts
-```
+You can get the values for each contract from the terminal `deployed to` when we deployed each contract.
 
 
 ## Frontend Dapp
@@ -1047,7 +1049,7 @@ export default function Home() {
           <>
             <div className="flex flex-col gap-4 items-center">
               <div>
-                {Number(userBalance) && `You own ${Number(userBalance)} NFTs`}
+                {userBalance ? `You own ${Number(userBalance)} NFTs` : ''}
               </div>
               <button
                 className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
@@ -1136,7 +1138,11 @@ We need to add `paths` to our tsconfig.json
 
 Our `main.tsx` is already setup the way we need it from our CLI.
 
+We should now be able to run our application the following command from the `cd packages/site` directory:
 
+```
+npm run dev
+```
 
 ## Additional Resources
 
