@@ -12,7 +12,10 @@ This workshop was created by:
 
 - Eric Bishard
   - [@httpJunkie](https://twitter.com/httpjunkie)
-- Alejandro 
+- Alejandro Mena
+  - [@_cxalem](https://twitter.com/_cxalem)
+
+Both of whom will be onsite at ETH Brussels in case yu need our help getting started and beyond.
 
 # Workshop Instructions Step by Step
 
