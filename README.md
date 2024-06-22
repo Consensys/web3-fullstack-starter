@@ -17,9 +17,11 @@ This workshop was created by:
 
 Both of whom will be onsite at ETH Brussels in case yu need our help getting started and beyond.
 
-# Workshop Instructions Step by Step
+## Build this workshop from scratch
 
-we will be working with Foundry in this project, if you do not have Foundry installed before continuing please run:
+### Prerequisites
+
+We will be working with Foundry in this project, if not already installed, you can run:
 
 ```bash
 curl -L https://foundry.paradigm.xyz | bash
@@ -27,7 +29,7 @@ curl -L https://foundry.paradigm.xyz | bash
 
 You can find these instructions here: [Foundry Install Instructions](https://book.getfoundry.sh/getting-started/installation)
 
-If you are not sure if you have Foundry installed already you can run `foundryup` and if you do not have it installed you will get an error otherwise Foundry STUFF will happen and you will see something like this...
+If you are not sure if you have Foundry installed already, you can run `foundryup` and if you do not have it installed you will get an error otherwise Foundry STUFF will happen and you will see something like this...
 
 ```bash
 .xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx
@@ -39,6 +41,7 @@ If you are not sure if you have Foundry installed already you can run `foundryup
 .xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx
 ```
 
+## Scaffolding out the project
 
 Start by using the [Create Web3 Template CLI](https://github.com/Consensys/create-web3-template)
 
@@ -67,7 +70,9 @@ cd my-web3-project && code .
 
 you can run `npm i` or `pnpm install`
 
-Next run: 
+### Step 01
+
+From the root directory run:
 
 ```bash
 npm run install-openzeppelin
@@ -75,9 +80,7 @@ npm run install-openzeppelin
 
 Remove `Counter.sol` from `src` and delete `script` directory.
 
-
 This will add the contracts needed for our project to use OpenZeppelin in the `blockchain/lib` directory.
-
 
 In the `blockchain/src` directory, create two files: 
 - `ExampleNFT.sol`
@@ -181,11 +184,6 @@ contract Voting is ERC721 {
 }
 ```
 
-In our video workshop we will walk through the code for each contract and explain.
-
-
-We will be using `base64-sol/base64.sol` which was installed with the openzeppelin script.
-
 In the root directory let's install our dependencies:
 
 ```bash
@@ -232,7 +230,7 @@ forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --acco
 
 Where `<PUBLIC_KEY>` is typed manually because it's not a secret and it's a constructor arg for the contract.
 
-since we are passing a constructor arg for the owner we need the public key on the second command for deploying voting contract.
+Since we are passing `--constructor-arg`s for the owner we need the public key on the second command for deploying voting contract.
 
 Do not store your Infura or private key anywhere in your project.
 
@@ -310,7 +308,7 @@ export const SvgCard = ({ tokenId }: { tokenId: number }) => {
       width={200}
       height={200}
       src={`${tokenSVG}`}
-      alt={`Ticket# ${tokenId}`}
+      alt={`Token# ${tokenId}`}
     />
   );
 };
@@ -1181,6 +1179,8 @@ npm run dev
 ## Additional Resources
 
 Below are some optional resources you may need to store environment variables etc..
+
+### Cloning, building and running this repo
 
 ### Saving Wallet private key with Cast
 
