@@ -1,6 +1,18 @@
 # Fullstack Web3 Workshop
 
-Source code: 
+This workshop is designed with the needs of hackers and builders in mind. It's a user-friendly, hands-on experience that will guide you through the process of building a full-stack web3 dapp. We use the create-web3-template CLI to scaffold a mono repo containing a `blockchain` and `web` space, all in one repository. With this CLI, you can choose to work with hardhat or foundry, and the info below is specific to the Foundry option. We'll start with a few demo smart contracts and a web dApp that utilizes Viem, Wagmi, and its connector for the MetaMask SDK.
+
+We will show you how to rapidly build up a fundamental starter application that deploys contracts to [Linea](https://linea.build/) testnet on [Sepolia](https://sepolia.lineascan.build/). We will ensure you have some examples of interacting with those contracts via the web dApp using the [TanStack Query for React](https://tanstack.com/query/latest). We will cover a few edge cases that are important in a dApp to ensure after [reading](https://wagmi.sh/react/api/hooks/useReadContracts) and [writing](https://wagmi.sh/react/api/hooks/useWriteContracts#usewritecontracts) to the contracts with Wagmi Hooks and use: [wait for transaction receipts](https://wagmi.sh/react/api/hooks/useWaitForTransactionReceipt#usewaitfortransactionreceipt) to [refetch](https://wagmi.sh/vue/api/composables/useReadContract#refetch) queries and refresh your UI so that your dApp does not have to be hard-refreshed.
+
+As developers who work closely with Web3 hackers worldwide, what is covered in this workshop should take minimal time for novice developers to understand and meet their needs for a good starting point for most projects.
+
+We've carefully selected the most widely used technologies in Web3 and incorporated them into practical, real-world examples. This ensures that the knowledge gained in this workshop is comprehensive and immediately applicable to your work, saving you from unnecessary digging or seeking external help.
+
+This workshop was created by:
+
+- Eric Bishard
+  - [@httpJunkie](https://twitter.com/httpjunkie)
+- Alejandro 
 
 # Workshop Instructions Step by Step
 

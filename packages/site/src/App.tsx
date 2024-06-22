@@ -16,37 +16,41 @@ export default function Home() {
 
   const result = useWaitForTransactionReceipt({ hash });
 
-  const { data: voter } = useReadContract({
+  const { data: voted, refetch: refetchVoted } = useReadContract({
     address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
     abi: voteAbi,
     functionName: "voter",
     args: [address],
   });
 
-  const { data: userBalance } = useReadContract({
+  const { data: userBalance, refetch: refetchUserBalance } = useReadContract({
     address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "balanceOf",
     args: [address],
   });
 
-  const { data: tokenIdsByOwner, refetch }: { data: any; refetch: any } =
-  useReadContract({
-    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
-    abi: nftAbi,
-    functionName: "getTokensByOwner",
-    args: [address],
-  });
+  const { data: tokenIdsByOwner, refetch: refetchTokenIdsByOwner }: { data: any; refetch: any } =
+    useReadContract({
+      address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+      abi: nftAbi,
+      functionName: "getTokensByOwner",
+      args: [address],
+    });
 
   useEffect(() => {
-    if (voter) {
+    if (voted) {
       setHasVoted(true);
     }
-  }, [voter]);
+  }, [voted]);
 
   useEffect(() => {
-    result && refetch();
-  }, [isSuccess, result]);
+    if (result) {
+      refetchTokenIdsByOwner();
+      refetchVoted();
+      refetchUserBalance();
+    }
+  }, [isSuccess, refetchTokenIdsByOwner, refetchUserBalance, refetchVoted, result]);
 
   function mintNFT() {
     try {
@@ -129,14 +133,17 @@ export default function Home() {
                 Mint
               </button>
 
-              <button
-                className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
-                onClick={addNft}
-              >
-                Add NFT
-              </button>
+              {
+                tokenIdsByOwner !== undefined && tokenIdsByOwner.length > 0 ? <button
+                  className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
+                  onClick={addNft}
+                >
+                  Add NFT
+                </button>
+                  : <></>
+              }
 
-              {!hasVoted ? (
+              {!hasVoted && Number(userBalance) > 0 ? (
                 <button
                   className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
                   onClick={Vote}
@@ -146,6 +153,7 @@ export default function Home() {
               ) : (
                 <div className="text-xl text-green-600">Already Voted</div>
               )}
+
               <div className="flex gap-4">
                 {tokenIdsByOwner &&
                   tokenIdsByOwner.map((id: bigint) => {
