@@ -1,6 +1,16 @@
 # Fullstack Web3 Workshop
 
-This workshop is designed with the needs of hackers and builders in mind. It's a user-friendly, hands-on experience that will guide you through the process of building a full-stack web3 dapp. We use the [create-web3-template](https://github.com/Consensys/create-web3-template) CLI to scaffold a mono repo containing a `blockchain` and `web` space, all in one repository. With this CLI, you can choose to work with hardhat or foundry, and the info below is specific to the Foundry option. We'll start with a few demo smart contracts and a web dApp that utilizes Viem, Wagmi, and its connector for the MetaMask SDK.
+This workshop is designed with the needs of hackers and builders in mind. A hands-on experience that will guide you through the process of building a full-stack web3 dapp with ViteJS React + TypeScript, Viem, Wagmi and MetaMask deployed to the Linea Seploia testnet.  
+
+## TLDR: Clone, Build, and Run
+
+If you simply want to clone, build, deploy contracts (to Linea Sepolia Testnet) and have a working version of this repo on your machine:
+
+Skip to the [Build, Deploy and Run](#just-build-deploy-and-run) section in our additional resources section.
+
+## About This Workshop
+
+We use the [create-web3-template](https://github.com/Consensys/create-web3-template) CLI to scaffold a mono repo containing a `blockchain` and `web` space, all in one repository. With this CLI, you can choose to work with hardhat or foundry, and the info below is specific to the Foundry option. We'll start with a few demo smart contracts and a web dApp that utilizes Viem, Wagmi, and its connector for the MetaMask SDK.
 
 We will show you how to rapidly build up a fundamental starter application that deploys contracts to [Linea](https://linea.build/) testnet on [Sepolia](https://sepolia.lineascan.build/). We will ensure you have some examples of interacting with those contracts via the web dApp using the [TanStack Query for React](https://tanstack.com/query/latest). We will cover a few edge cases that are important in a dApp to ensure after [reading](https://wagmi.sh/react/api/hooks/useReadContracts) and [writing](https://wagmi.sh/react/api/hooks/useWriteContracts#usewritecontracts) to the contracts with Wagmi Hooks and use: [wait for transaction receipts](https://wagmi.sh/react/api/hooks/useWaitForTransactionReceipt#usewaitfortransactionreceipt) to [refetch](https://wagmi.sh/vue/api/composables/useReadContract#refetch) queries and refresh your UI so that your dApp does not have to be hard-refreshed.
 
@@ -10,10 +20,11 @@ We've carefully selected the most widely used technologies in Web3 and incorpora
 
 This workshop was created by:
 
-- Eric Bishard
-  - [@httpJunkie](https://twitter.com/httpjunkie)
 - Alejandro Mena
   - [@_cxalem](https://twitter.com/_cxalem)
+- Eric Bishard
+  - [@httpJunkie](https://twitter.com/httpjunkie)
+
 
 Both of whom will be onsite at ETH Brussels in case yu need our help getting started and beyond.
 
@@ -41,7 +52,7 @@ If you are not sure if you have Foundry installed already, you can run `foundryu
 .xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx
 ```
 
-## Scaffolding out the project
+### Scaffolding out the project
 
 Start by using the [Create Web3 Template CLI](https://github.com/Consensys/create-web3-template)
 
@@ -68,9 +79,9 @@ Choose `React/Vite and foundry starter`
 cd my-web3-project && code .
 ```
 
-you can run `npm i` or `pnpm install`
+### Install Dependencies and Contracts
 
-### Step 01
+Run `npm i` or `pnpm install` from root to install dependencies.
 
 From the root directory run:
 
@@ -101,7 +112,7 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
 
     event NFTMinted(address indexed _to, uint256 indexed _tokenId);
 
-    constructor() ERC721("ExampleNFT", "XPL") Ownable() {}
+    constructor() ERC721("ExampleNFT", "XPL") Ownable(msg.sender) {}
 
     function generateSVGImage(
         uint256 tokenId
@@ -186,15 +197,11 @@ contract Voting is ERC721 {
 
 In the root directory let's install our dependencies:
 
-```bash
-pnpm install
-```
-
-## Obfuscating and keeping secrets
+### Obfuscating and keeping secrets
 
 When working on a fullstack dapp it's good to know how to use Cast with Forge and store environment variables for terminal commands so that if you are working with others or sharing a screen, you can use variable names and options for commands that deploy contracts ets.. See the section on [Saving Wallet private key with Cast](#saving-wallet-private-key-with-cast)
 
-## Deploying our contracts to Linea
+### Deploy Contracts to Linea Sepolia Testnet
 
 Change directory into the `blockchain` directory to run the forge commands.
 
@@ -213,7 +220,7 @@ forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private
 or using cast and env variables:
 
 ```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myOwnKey src/ExampleNFT.sol:ExampleNFT
+forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/ExampleNFT.sol:ExampleNFT
 ```
 
 The voting contract needs an owner so this command is slightly modified:
@@ -225,7 +232,7 @@ forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private
 or using cast and env variables:
 
 ```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myOwnKey src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
+forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
 ```
 
 Where `<PUBLIC_KEY>` is typed manually because it's not a secret and it's a constructor arg for the contract.
@@ -246,7 +253,7 @@ VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
 You can get the values for each contract from the terminal `deployed to` when we deployed each contract.
 
 
-## Frontend Dapp
+### Frontend Dapp
 
 Our CLI has scaffolded out a basic ViteJS + React & TypeScript application with TailwindCSS. Styling is beyond the scope of this workshop, but we will be copying in components and JSX that have tailwind styles.
 
@@ -1123,7 +1130,7 @@ export default function Home() {
 }
 ```
 
-## gitignore
+### Ignore Files
 
 Add the following to .gitignore file at the root:
 
@@ -1133,7 +1140,7 @@ node_modules
 pnpm-lock.yaml
 ```
 
-## tsconfig
+### Configuring TypeScript
 
 We need to add `paths` to our tsconfig.json
 
@@ -1180,15 +1187,86 @@ npm run dev
 
 Below are some optional resources you may need to store environment variables etc..
 
-### Cloning, building and running this repo
+### Just Build, Deploy and Run
+
+This section contains only the basic steps to clone, build, deploy and run this project.
+
+> Before building this repo you should ensure that you have Foundry installed. 
+> Visit the [Prerequisites section](#prerequisites) for those instructions.
+
+#### Step One: Clone the Repo
+
+```bash
+git clone https://github.com/Consensys/web3-fullstack-starter && \ 
+cd web3-fullstack-starter && pnpm install && \ 
+npm run install-openzeppelin
+```
+
+- Clone the repository
+- Switch directories into the root and install dependencies
+- And copy OpenZeppelin contracts into the `blockchain/lib` directory.
+  - You could optionally run `code .` at this point to open in VS Code.
+
+#### Step Two: Create Environment Variables File
+
+Create a `.env` file in `packages/site`
+
+```
+VITE_EXAMPLE_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
+```
+
+#### Step Three: Build and Deploy Contracts
+
+Ensure the contracts build
+
+```bash
+cd blockchain && forge build
+```
+
+Deploy `ExampleNFT` contract:
+
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/ExampleNFT.sol:ExampleNFT
+```
+
+or using cast and env variables:
+
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/ExampleNFT.sol:ExampleNFT
+```
+
+Copy the contract address printed after `Deployed to:` into the `VITE_EXAMPLE_NFT_CONTRACT` variable in `.env`
+
+Deploy `Voting` contract:
+
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
+```
+
+or using cast and env variables:
+
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
+```
+
+Copy the contract address printed after `Deployed to:` into the `VITE_EXAMPLE_NFT_CONTRACT` variable in `.env`
+
+#### Run the Web dApp
+
+Change into `packages/site` and run project:
+
+```bash
+cd ../packages/site && npm run dev
+```
 
 ### Saving Wallet private key with Cast
 
-This is an example of saving a private key with the alias/name of myOwnKey
+This is an example of saving a private key with the alias/name of myCastAccountName
 
 run:
 ```bash
-cast wallet import myOwnKey --interactive
+cast wallet import myCastAccountName --interactive
 ```
 
 After running this command you will be able to enter a private key and password, both of which will be obfuscated on the screen (if you type or paste it will appear nothing is happening but it is)
@@ -1196,17 +1274,17 @@ After running this command you will be able to enter a private key and password,
 Once complete you will see:
 
 ```bash
-`myOwnKey` keystore was saved successfully. Address: 0x8d4321.....
+`myCastAccountName` keystore was saved successfully. Address: 0x8d4321.....
 ```
 
 Then you can use your private key for any other commands:
 
 
 ```bash
-forge script WhateverSolScriptName.sol --rpc-url http://localhost:8586 --account myOwnKey --sender 0x8d4321.....
+forge script WhateverSolScriptName.sol --rpc-url http://localhost:8586 --account myCastAccountName --sender 0x8d4321.....
 ```
 
-Where sender is your public key and myOwnKey is the name of your wallet alias/name
+Where sender is your public key and myCastAccountName is the name of your wallet alias/name
 
 ### Saving an API key
 
