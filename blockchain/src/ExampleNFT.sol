@@ -10,7 +10,7 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
 
     event NFTMinted(address indexed _to, uint256 indexed _tokenId);
 
-    constructor() ERC721("ExampleNFT", "XPL") Ownable() {}
+    constructor() ERC721("ExampleNFT", "XPL") Ownable(msg.sender) {}
 
     function generateSVGImage(
         uint256 tokenId
