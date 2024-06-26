@@ -195,7 +195,6 @@ contract Voting is ERC721 {
 }
 ```
 
-In the root directory let's install our dependencies:
 
 ### Obfuscating and keeping secrets
 
@@ -326,6 +325,8 @@ Let's create a new folder in the `packages/site/` directory named `utils`.
 We will need to copy in the abi for the contracts into the `utility` directory into a file named `abis.ts` and add the following abi code:
 
  > you could also copy the abi from the blockchain directory but this is formatted better:
+<details>
+<summary>NFT contract ABI</summary>
 
 ```ts
 export const nftAbi = [
@@ -676,6 +677,14 @@ export const nftAbi = [
   },
 ];
 
+```
+
+</details>
+
+<details>
+<summary>Vote contract ABI</summary>
+
+```ts
 export const voteAbi = [
   {
     type: "constructor",
@@ -952,6 +961,8 @@ export const voteAbi = [
   },
 ];
 ```
+</details>
+
 
 At this point the abi import in our `SvgCard.tsx` should be good to go!
 
