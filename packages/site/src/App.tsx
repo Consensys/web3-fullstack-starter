@@ -124,7 +124,7 @@ export default function Home() {
           <>
             <div className="flex flex-col gap-4 items-center">
               <div>
-                {Number(userBalance) && `You own ${Number(userBalance)} NFTs`}
+                {Number(userBalance) ? `You own ${Number(userBalance)} NFTs` : ""}
               </div>
               <button
                 className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
@@ -143,14 +143,16 @@ export default function Home() {
                   : <></>
               }
 
-              {!hasVoted && Number(userBalance) > 0 ? (
+              {!hasVoted && Number(userBalance) > 0 && (
                 <button
                   className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
                   onClick={Vote}
                 >
                   Vote
                 </button>
-              ) : (
+              )}
+
+              {hasVoted && Number(userBalance) > 0 && (
                 <div className="text-xl text-green-600">Already Voted</div>
               )}
 

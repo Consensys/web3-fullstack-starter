@@ -155,7 +155,7 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
         return tokenIds;
     }
 
-    function safeMint(address minter) public onlyOwner {
+    function safeMint(address minter) public {
         uint256 tokenId = _nextTokenId++;
         _safeMint(minter, tokenId);
         _setTokenURI(tokenId, generateSVGImage(tokenId));
@@ -1095,7 +1095,7 @@ export default function Home() {
           <>
             <div className="flex flex-col gap-4 items-center">
               <div>
-                {Number(userBalance) && `You own ${Number(userBalance)} NFTs`}
+                {Number(userBalance) ? `You own ${Number(userBalance)} NFTs` : ""}
               </div>
               <button
                 className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
@@ -1103,25 +1103,27 @@ export default function Home() {
               >
                 Mint
               </button>
-              
+
               {
                 tokenIdsByOwner !== undefined && tokenIdsByOwner.length > 0 ? <button
-                className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
-                onClick={addNft}
-              >
-                Add NFT
-              </button>
-                : <></>
+                  className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
+                  onClick={addNft}
+                >
+                  Add NFT
+                </button>
+                  : <></>
               }
 
-              {!hasVoted && Number(userBalance) > 0 ? (
+              {!hasVoted && Number(userBalance) > 0 && (
                 <button
                   className="bg-gray-800 text-white px-20 py-2 rounded-md shadow-md hover:bg-opacity-85 hover:shadow-xl duration-200"
                   onClick={Vote}
                 >
                   Vote
                 </button>
-              ) : (
+              )}
+
+              {hasVoted && Number(userBalance) > 0 && (
                 <div className="text-xl text-green-600">Already Voted</div>
               )}
 
@@ -1146,7 +1148,6 @@ export default function Home() {
 Add the following to .gitignore file at the root:
 
 ```
-node_modules
 .env
 pnpm-lock.yaml
 ```

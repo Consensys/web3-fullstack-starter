@@ -53,7 +53,7 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
         return tokenIds;
     }
 
-    function safeMint(address minter) public onlyOwner {
+    function safeMint(address minter) public {
         uint256 tokenId = _nextTokenId++;
         _safeMint(minter, tokenId);
         _setTokenURI(tokenId, generateSVGImage(tokenId));
