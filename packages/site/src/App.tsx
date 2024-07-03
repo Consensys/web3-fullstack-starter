@@ -18,7 +18,6 @@ export default function Home() {
         <Connect />
       </div>
 
-      {/* Create a component for this */}
       <div className="space-y-4 text-center">
         <span className="text-3xl w-full font-bold">Web3 Workshop</span>
         <span className="text-2xl w-full font-bold">NFT Voting App</span>
