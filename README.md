@@ -60,20 +60,8 @@ Start by using the [Create Web3 Template CLI](https://github.com/Consensys/creat
 npx @consensys/create-web3-template my-web3-project
 ```
 
-```bash
-Need to install the following packages:
-@consensys/create-web3-template@1.0.5
-Ok to proceed? (y)
-
-
-Creating project with name: my-web3-project
-? Please specify a template:  
-  Next Web3 Starter 
-  React Web3 Starter 
-❯ React/Vite and foundry starter 
-```
-
-Choose `React/Vite and foundry starter`
+Choose `React (with Vite)`  
+Then choose: `Foundry`
 
 ```bash
 cd my-web3-project && code .
