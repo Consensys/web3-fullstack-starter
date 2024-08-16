@@ -5,7 +5,7 @@ import "./index.css";
 import { WagmiProvider, deserialize, serialize } from "wagmi";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient } from "@tanstack/react-query";
 import { config } from "./wagmi.config.ts";
 
 const queryClient = new QueryClient({
