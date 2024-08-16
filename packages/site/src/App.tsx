@@ -1,27 +1,41 @@
-import { Connect } from "./components/ConnectButton";
-import { MintButton } from "./components/MintButton";
+import { ballotsAbi } from "../utils/abis";
+import { useAccount, useReadContract } from "wagmi";
+import BallotCard from "./components/BallotCard";
+import { NavBar } from "./components/Nav";
+import { Hero } from "./components/Hero";
+import { useBallots } from "./hooks/useBallots";
 
 export default function Home() {
-  return (
-    <main className="relative flex flex-col justify-between items-center gap-20 min-h-screen mx-auto md:p-24">
-      <div className=" flex justify-center pt-10 md:pt-0 max-w-5xl w-full lg:items-center lg:justify-between font-mono text-sm lg:flex">
-        <div className="absolute bottom-0 left-0 flex w-full items-end justify-center lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By RAD Team
-          </a>
-        </div>
-        <Connect />
-      </div>
+  const { address } = useAccount();
+  const { ballots } = useBallots();
 
-      <div className="space-y-4 text-center">
-        <span className="text-3xl w-full font-bold">Web3 Workshop</span>
-        <span className="text-2xl w-full font-bold">NFT Voting App</span>
-        <MintButton />
+  const { data: tokens } = useReadContract({
+    address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
+    abi: ballotsAbi,
+    functionName: "getTokensByOwner",
+    args: [address as `0x${string}`],
+  });
+
+  return (
+    <main className="relative flex flex-col items-center  min-h-screen mx-auto md:p-12">
+      <NavBar />
+      <Hero />
+
+      <div className="grid mt-4 grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
+        {ballots &&
+          ballots.map((ballot) => {
+            return (
+              <BallotCard
+                key={ballot.id}
+                id={ballot.id}
+                title={ballot.title}
+                description={ballot.description}
+                to={`/ballot/${ballot.id}`}
+                choices={ballot.choices}
+                tokens={tokens}
+              />
+            );
+          })}
       </div>
     </main>
   );
