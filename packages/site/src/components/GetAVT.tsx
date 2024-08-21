@@ -1,4 +1,6 @@
+import { cn } from "../../utils/cn";
 import { useAvt } from "../hooks/useAvt";
+import { useNfts } from "../hooks/useNfts";
 import { SvgCard } from "./SvgCard";
 import { useRef, useState } from "react";
 
@@ -10,11 +12,13 @@ export const GetAvt = ({ ballotId }: GetAvtProps) => {
   const [selectedToken, setSelectedToken] = useState<null | bigint>(null);
   const [isCopied, setIsCopied] = useState(false);
 
+  const { nfts } = useNfts();
+
   const {
-    nftsWithAvt,
     getAvt,
     newAvt,
     refetchData,
+    resetData,
     isPending,
     isConfirming,
     isConfirmed,
@@ -29,6 +33,9 @@ export const GetAvt = ({ ballotId }: GetAvtProps) => {
 
   const closeDialog = () => {
     if (dialogRef.current) dialogRef.current.close();
+    setSelectedToken(null);
+    setIsCopied(false);
+    resetData();
     refetchData();
   };
 
@@ -44,8 +51,7 @@ export const GetAvt = ({ ballotId }: GetAvtProps) => {
     );
   };
 
-  const tokensWithoutAvt =
-    nftsWithAvt?.filter((token) => !token.avt.isIssued) || [];
+  const tokensWithoutAvt = nfts?.filter((nft) => !nft.avt.isIssued) || [];
 
   return (
     <div className="w-full">
@@ -65,26 +71,7 @@ export const GetAvt = ({ ballotId }: GetAvtProps) => {
             </span>
           </div>
 
-          <div className="w-full">
-            <div className="grid grid-cols-4 grid-rows-2 gap-2">
-              {tokensWithoutAvt.map((token, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    setSelectedToken((prevSelected) =>
-                      prevSelected === token.tokenId ? null : token.tokenId
-                    )
-                  }
-                  className="border-secondary border-2 rounded-lg p-1 w-full h-full"
-                >
-                  <div className="bg-base-300 grid place-items-center">
-                    <SvgCard token={token} />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-          {newAvt !== undefined && (
+          {newAvt !== undefined ? (
             <button
               onClick={() => copyToClipboard(newAvt.toString())}
               role="alert"
@@ -104,12 +91,34 @@ export const GetAvt = ({ ballotId }: GetAvtProps) => {
                 />
               </svg>
               <span className="text-sm font-medium">
-                {" "}
                 {isCopied
                   ? "Copied"
                   : "AVT generated Successfully! Click to copy"}
               </span>
             </button>
+          ) : (
+            <div className="w-full">
+              <div className="grid grid-cols-4 grid-rows-2 gap-2">
+                {tokensWithoutAvt.map((token, index) => (
+                  <button
+                    key={index}
+                    onClick={() =>
+                      setSelectedToken((prevSelected) =>
+                        prevSelected === token.tokenId ? null : token.tokenId
+                      )
+                    }
+                    className={cn(
+                      "border-2 rounded-lg p-1 w-full h-full",
+                      selectedToken === token.tokenId && "border-secondary"
+                    )}
+                  >
+                    <div className="bg-base-300 grid place-items-center">
+                      <SvgCard token={token} />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           <div className="modal-action">

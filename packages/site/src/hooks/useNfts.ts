@@ -18,7 +18,7 @@ export function useNfts() {
       hash,
     });
 
-  const { data: nftsWithAvt, queryKey } = useReadContract({
+  const { data: nfts, queryKey } = useReadContract({
     address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
     abi: ballotsAbi,
     functionName: "getTokensByOwner",
@@ -41,7 +41,15 @@ export function useNfts() {
     if (isConfirmed) {
       queryClient.invalidateQueries({ queryKey });
     }
-  }, [isConfirmed]);
+  }, [isConfirmed, queryClient, queryKey]);
 
-  return { nftsWithAvt, mintNft, error, isPending, isConfirming, isConfirmed };
+  return {
+    nfts,
+    mintNft,
+    queryKey,
+    error,
+    isPending,
+    isConfirming,
+    isConfirmed,
+  };
 }

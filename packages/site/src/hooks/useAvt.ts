@@ -1,18 +1,16 @@
 import { useState } from "react";
 import {
-  useAccount,
-  useReadContract,
   useWaitForTransactionReceipt,
   useWatchContractEvent,
   useWriteContract,
 } from "wagmi";
 import { ballotsAbi } from "../../utils/abis";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNfts } from "./useNfts";
 
 export function useAvt() {
   const [newAvt, setNewAvt] = useState<undefined | bigint>(undefined);
   const { data: hash, error, isPending, writeContract } = useWriteContract();
-  const { address } = useAccount();
   const queryClient = useQueryClient();
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
@@ -20,12 +18,7 @@ export function useAvt() {
       hash,
     });
 
-  const { data: nftsWithAvt, queryKey } = useReadContract({
-    address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
-    abi: ballotsAbi,
-    functionName: "getTokensByOwner",
-    args: [address as `0x${string}`],
-  });
+  const { queryKey } = useNfts();
 
   useWatchContractEvent({
     address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
@@ -56,10 +49,14 @@ export function useAvt() {
     queryClient.invalidateQueries({ queryKey });
   };
 
+  const resetData = () => {
+    setNewAvt(undefined)
+  }
+
   return {
-    nftsWithAvt,
     getAvt,
     refetchData,
+    resetData,
     newAvt,
     error,
     isPending,

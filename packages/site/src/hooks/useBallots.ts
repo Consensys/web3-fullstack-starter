@@ -45,7 +45,7 @@ export function useBallots() {
     if (isConfirmed) {
       queryClient.invalidateQueries({ queryKey });
     }
-  }, [isConfirmed]);
+  }, [isConfirmed, queryClient, queryKey]);
 
   return { ballots, createBallot, error, isPending, isConfirming, isConfirmed };
 }
