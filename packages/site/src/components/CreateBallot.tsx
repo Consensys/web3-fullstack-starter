@@ -103,7 +103,7 @@ export function CreateBallot() {
                 />
               </label>
 
-              {choices.map((field, index) => (
+              {choices.map((_, index) => (
                 <label className="form-control w-full flex">
                   <div className="label">
                     <span className="label-text">Choice {index + 1}</span>
