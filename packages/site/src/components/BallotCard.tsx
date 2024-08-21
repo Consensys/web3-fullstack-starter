@@ -5,25 +5,13 @@ import { Vote } from "./Vote";
 import { GetAvt } from "./GetAVT";
 import { SvgCard } from "./SvgCard";
 import { Results } from "./Results";
+import { useNfts } from "../hooks/useNfts";
 
 interface CardProps {
   id: bigint;
   title: string;
   description: string;
   choices: readonly string[];
-  to: string;
-  tokens:
-    | readonly {
-        tokenId: bigint;
-        avt: {
-          isIssued: boolean;
-          ballotId: bigint;
-          hasVoted: boolean;
-          timestamp: bigint;
-          expiredAt: bigint;
-        };
-      }[]
-    | undefined;
 }
 
 const BallotCard: React.FC<CardProps> = ({
@@ -31,7 +19,6 @@ const BallotCard: React.FC<CardProps> = ({
   title,
   description,
   choices,
-  tokens,
 }) => {
   const { data: results } = useReadContract({
     address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
@@ -40,17 +27,21 @@ const BallotCard: React.FC<CardProps> = ({
     args: [id],
   });
 
-  const tokenWithAvt = tokens?.find(
+  const { nfts } = useNfts();
+
+  // get the avt, if attached to a nft already
+  const nftWithAvt = nfts?.find(
     ({ avt }) => avt.ballotId === id && avt.isIssued
   );
 
-  const isEligible = !!tokenWithAvt;
-  const hasVoted = tokenWithAvt?.avt.hasVoted;
+  const isEligible = !!nftWithAvt;
+  const hasVoted = nftWithAvt?.avt.hasVoted;
+  
   return (
     <div className="card bg-base-100 p-2 shadow-xl">
       <figure>
         {isEligible ? (
-          <SvgCard token={tokenWithAvt} />
+          <SvgCard token={nftWithAvt} />
         ) : (
           <img
             width={200}
@@ -71,7 +62,7 @@ const BallotCard: React.FC<CardProps> = ({
             ) : (
               <Vote
                 ballotId={id}
-                tokenId={tokenWithAvt.tokenId}
+                tokenId={nftWithAvt.tokenId}
                 title={title}
                 choices={choices}
               />

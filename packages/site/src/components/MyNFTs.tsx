@@ -1,10 +1,9 @@
 import { useNfts } from "../hooks/useNfts";
-import { Mint } from "./MintNFT";
 import { SvgCard } from "./SvgCard";
 import { useRef } from "react";
 
 export const MyNFTs = () => {
-  const { nftsWithAvt, mintNft, isPending, isConfirmed, isConfirming, error } =
+  const { nfts, mintNft, isPending, isConfirming, error } =
     useNfts();
 
   const dialogRef = useRef<HTMLDialogElement | null>(null);
@@ -25,10 +24,10 @@ export const MyNFTs = () => {
       <dialog id="nft-list-modal" ref={dialogRef} className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Your NFTs</h3>
-          {nftsWithAvt && nftsWithAvt.length > 0 ? (
+          {nfts && nfts.length > 0 ? (
             <>
               <div className="my-5">
-                <span> You have {nftsWithAvt.length} NFT/s. </span>
+                <span> You have {nfts.length} NFT/s. </span>
                 <span className="">
                   You will see the ballot ID if the NFT has already been used to
                   create an AVT
@@ -36,7 +35,7 @@ export const MyNFTs = () => {
               </div>
 
               <div className="grid grid-cols-4 grid-rows-2 gap-4">
-                {nftsWithAvt.map((token) => {
+                {nfts.map((token) => {
                   const linkedAvt = token.avt.isIssued ? token.avt : null;
                   return (
                     <div
