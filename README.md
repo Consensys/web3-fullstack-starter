@@ -233,8 +233,8 @@ Now that we have deployed both contracts, let's be aware of the contract address
 Create a `.env` file in `packages/site`
 
 ```
-VITE_EXAMPLE_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
-VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_BALLOT_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_BALLOT_CONTRACT=<DEPLOYED_TO_ADDRESS>
 ```
 
 You can get the values for each contract from the terminal `deployed to` when we deployed each contract.
@@ -291,7 +291,7 @@ import { nftAbi } from "../../utils/abis";
 
 export const SvgCard = ({ tokenId }: { tokenId: number }) => {
   const { data: tokenSVG } = useReadContract({
-    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+    address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "tokenURI",
     args: [tokenId],
@@ -976,14 +976,14 @@ export default function Home() {
   const result = useWaitForTransactionReceipt({ hash });
 
   const { data: voted, refetch: refetchVoted } = useReadContract({
-    address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
+    address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
     abi: voteAbi,
     functionName: "voter",
     args: [address],
   });
 
   const { data: userBalance, refetch: refetchUserBalance } = useReadContract({
-    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+    address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "balanceOf",
     args: [address],
@@ -991,7 +991,7 @@ export default function Home() {
 
   const { data: tokenIdsByOwner, refetch: refetchTokenIdsByOwner }: { data: any; refetch: any } =
     useReadContract({
-      address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+      address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
       abi: nftAbi,
       functionName: "getTokensByOwner",
       args: [address],
@@ -1016,7 +1016,7 @@ export default function Home() {
       // Create a minting state
       console.log("Minting...");
       writeContract({
-        address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+        address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
         abi: nftAbi,
         functionName: "safeMint",
         args: [address],
@@ -1031,7 +1031,7 @@ export default function Home() {
       // Create a voting state
       console.log("Voting...");
       writeContract({
-        address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
+        address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
         abi: voteAbi,
         functionName: "hasVoted",
         args: [address],
@@ -1049,7 +1049,7 @@ export default function Home() {
           params: {
             type: "ERC721",
             options: {
-              address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+              address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
               tokenId: id.toString(),
             },
           },
@@ -1212,8 +1212,8 @@ npm run install-openzeppelin
 Create a `.env` file in `packages/site`
 
 ```
-VITE_EXAMPLE_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
-VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_BALLOT_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_BALLOT_CONTRACT=<DEPLOYED_TO_ADDRESS>
 ```
 
 #### Step Three: Build and Deploy Contracts
@@ -1236,7 +1236,7 @@ or using cast and env variables:
 forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/ExampleNFT.sol:ExampleNFT
 ```
 
-Copy the contract address printed after `Deployed to:` into the `VITE_EXAMPLE_NFT_CONTRACT` variable in `.env`
+Copy the contract address printed after `Deployed to:` into the `VITE_BALLOT_NFT_CONTRACT` variable in `.env`
 
 Deploy `Voting` contract:
 
@@ -1250,7 +1250,7 @@ or using cast and env variables:
 forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
 ```
 
-Copy the contract address printed after `Deployed to:` into the `VITE_EXAMPLE_NFT_CONTRACT` variable in `.env`
+Copy the contract address printed after `Deployed to:` into the `VITE_BALLOT_NFT_CONTRACT` variable in `.env`
 
 #### Run the Web dApp
 

@@ -14,8 +14,9 @@ export const config = createConfig({
       },
     }),
   ],
+  syncConnectedChain: true,
   transports: {
-    [lineaSepolia.id]: http(),
+    [lineaSepolia.id]: http("https://linea-sepolia.infura.io/v3/2XIxqbP9VIKNwExz861Ss0f7pwn"),
   },
 });
 

@@ -1,22 +1,33 @@
 import { useReadContract } from "wagmi";
 import { nftAbi } from "../../utils/abis";
 
-const NFT_CONTRACT_ADDRESS = "0x701c5b02a8E5740B1c90b815354145aB7963eDcB";
 
-export const SvgCard = ({ tokenId }: { tokenId: number }) => {
+interface SvgProps {
+  token: {
+    tokenId: bigint;
+    avt: {
+      isIssued: boolean;
+      ballotId: bigint;
+      hasVoted: boolean;
+      timestamp: bigint;
+      expiredAt: bigint;
+    };
+  };
+}
+
+export const SvgCard = ({ token }: SvgProps) => {
   const { data: tokenSVG } = useReadContract({
-    address: NFT_CONTRACT_ADDRESS,
+    address:import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "tokenURI",
-    args: [tokenId],
+    args: [token.tokenId],
   });
 
   return (
     <img
-      width={200}
-      height={200}
+      className="w-full h-full object-contain"
       src={`${tokenSVG}`}
-      alt={`Token# ${tokenId}`}
+      alt={`Token# ${token.tokenId}`}
     />
   );
 };

@@ -1,20 +1,24 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "base64-sol/base64.sol";
 
-contract ExampleNFT is ERC721URIStorage, Ownable {
-    uint256 public _nextTokenId = 0;
+contract BallotNFT is ERC721URIStorage, Ownable {
+    using Strings for uint256;
+
+    uint256 public nextTokenId = 0;
+    mapping(uint256 => string) private _tokenURIs;
 
     event NFTMinted(address indexed _to, uint256 indexed _tokenId);
 
-    constructor() ERC721("ExampleNFT", "XPL") Ownable(msg.sender) {}
+    constructor() ERC721("BallotNFT", "BLT") Ownable(msg.sender) {}
 
     function generateSVGImage(
         uint256 tokenId
-    ) public pure returns (string memory) {
+    ) internal pure returns (string memory) {
         bytes memory svg = abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
             "<style>.base { fill: black; font-family: serif; font-size: 14px;}</style>",
@@ -40,23 +44,15 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
             );
     }
 
-    function getTokensByOwner(
-        address owner
-    ) public view returns (uint256[] memory) {
-        uint256 tokenCount = balanceOf(owner);
-        uint256[] memory tokenIds = new uint256[](tokenCount);
-        for (uint256 i = 0; i < _nextTokenId; i++) {
-            if (ownerOf(i) == owner) {
-                tokenIds[i] = i;
-            }
-        }
-        return tokenIds;
-    }
-
-    function safeMint(address minter) public {
-        uint256 tokenId = _nextTokenId++;
+    function safeMint(
+        address minter
+    ) external returns (uint256) {
+        uint256 tokenId = nextTokenId++;
         _safeMint(minter, tokenId);
         _setTokenURI(tokenId, generateSVGImage(tokenId));
+        tokenId++;
         emit NFTMinted(minter, tokenId);
+        return tokenId;
     }
+
 }
