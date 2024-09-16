@@ -18,7 +18,7 @@ export const config = createConfig({
   transports: {
     [hardhat.id]: http("http://127.0.0.1:8545/"),
     [lineaSepolia.id]: http(
-      `https://linea-sepolia.infura.io/v3/${process.env.INFURA_PROJECT_ID}`
+      `https://linea-sepolia.infura.io/v3/${import.meta.env.INFURA_PROJECT_ID}`
     ),
   },
 });
