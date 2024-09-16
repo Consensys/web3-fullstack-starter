@@ -4,7 +4,7 @@ import { metaMask } from "wagmi/connectors";
 
 export const config = createConfig({
   multiInjectedProviderDiscovery: false,
-  chains: [hardhat],
+  chains: [hardhat, lineaSepolia],
   connectors: [
     metaMask({
       dappMetadata: {
@@ -17,6 +17,9 @@ export const config = createConfig({
   syncConnectedChain: true,
   transports: {
     [hardhat.id]: http("http://127.0.0.1:8545/"),
+    [lineaSepolia.id]: http(
+      `https://linea-sepolia.infura.io/v3/${process.env.INFURA_PROJECT_ID}`
+    ),
   },
 });
 
