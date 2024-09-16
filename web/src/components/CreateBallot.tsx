@@ -2,7 +2,7 @@ import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useCallback, useEffect } from "react";
-import { useBallots } from "../hooks/useBallots";
+import { useBallots } from "@/hooks/useBallots";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -114,7 +115,12 @@ export function CreateBallot() {
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <Input id="description" {...register("description")} />
+              <Textarea
+                id="description"
+                {...register("description")}
+                rows={3}
+                className="resize-none"
+              />
               {errors.description && (
                 <p className="text-sm text-destructive">
                   {errors.description.message}

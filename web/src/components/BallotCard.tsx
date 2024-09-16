@@ -33,7 +33,7 @@ const BallotCard: React.FC<CardProps> = ({ id, title, description, choices }) =>
         )}
       </CardHeader>
       <CardContent className="flex-grow">
-        <CardDescription className="text-sm text-muted-foreground">
+        <CardDescription className="text-sm text-muted-foreground max-h-24 overflow-y-auto pr-2">
           {description}
         </CardDescription>
       </CardContent>
