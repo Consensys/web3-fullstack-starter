@@ -82,29 +82,33 @@ Remove `Counter.sol` from `src` and delete `script` directory.
 This will add the contracts needed for our project to use OpenZeppelin in the `blockchain/lib` directory.
 
 In the `blockchain/src` directory, create two files: 
-- `ExampleNFT.sol`
-- `Voting.sol`
+- `BallotNFT.sol`
+- `BallotContract.sol`
 
 Copy the following contract code that our frontend will work with:
 
-```solidity title="ExampleNFT.sol"
+```solidity title="BallotNFT.sol"
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "base64-sol/base64.sol";
 
-contract ExampleNFT is ERC721URIStorage, Ownable {
-    uint256 public _nextTokenId = 0;
+contract BallotNFT is ERC721URIStorage, Ownable {
+    using Strings for uint256;
+
+    uint256 public nextTokenId = 0;
+    mapping(uint256 => string) private _tokenURIs;
 
     event NFTMinted(address indexed _to, uint256 indexed _tokenId);
 
-    constructor() ERC721("ExampleNFT", "XPL") Ownable(msg.sender) {}
+    constructor() ERC721("BallotNFT", "BLT") Ownable(msg.sender) {}
 
     function generateSVGImage(
         uint256 tokenId
-    ) public pure returns (string memory) {
+    ) internal pure returns (string memory) {
         bytes memory svg = abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
             "<style>.base { fill: black; font-family: serif; font-size: 14px;}</style>",
@@ -130,57 +134,191 @@ contract ExampleNFT is ERC721URIStorage, Ownable {
             );
     }
 
-    function getTokensByOwner(
-        address owner
-    ) public view returns (uint256[] memory) {
-        uint256 tokenCount = balanceOf(owner);
-        uint256[] memory tokenIds = new uint256[](tokenCount);
-        for (uint256 i = 0; i < _nextTokenId; i++) {
-            if (ownerOf(i) == owner) {
-                tokenIds[i] = i;
-            }
-        }
-        return tokenIds;
-    }
-
-    function safeMint(address minter) public {
-        uint256 tokenId = _nextTokenId++;
+    function safeMint(
+        address minter
+    ) external returns (uint256) {
+        uint256 tokenId = nextTokenId++;
         _safeMint(minter, tokenId);
         _setTokenURI(tokenId, generateSVGImage(tokenId));
+        tokenId++;
         emit NFTMinted(minter, tokenId);
+        return tokenId;
     }
+
 }
+
 ```
 
-```solidity title="Voting.sol"
+```solidity title="BallotContract.sol"
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract Voting is ERC721 {
+import "./BallotNFT.sol";
+
+contract BallotContract {
     address public owner;
-    address[] public voters;
-    
-    mapping(address => bool) public voter;
+    BallotNFT public ballotNFT;
 
-    event Voted(address voter);
-
-    constructor(address _owner) ERC721("Voting", "VTN") {
-        owner = _owner;
+    constructor(address ballotNFTAddress) {
+        ballotNFT = BallotNFT(ballotNFTAddress);
     }
 
-    function hasVoted(address voting) public {
-        voter[voting] = true;
-        voters.push(voting);
-        emit Voted(voting);
+    struct Ballot {
+        uint256 id;
+        address owner;
+        string title;
+        string description;
+        string[] choices;
     }
 
-    function getVoter(uint _index) public view returns (address) {
-        return voters[_index];
+    struct AVT {
+        bool isIssued;
+        uint256 ballotId;
+        bool hasVoted;
+        uint256 timestamp;
+        uint256 expiredAt;
+    }
+
+    struct TokenInfo {
+        uint256 tokenId;
+        AVT avt;
+    }
+
+    mapping(uint256 => Ballot) public ballots;
+    mapping(uint256 => mapping(uint256 => uint256)) public results;
+    mapping(uint256 => bool) public isClosed;
+    mapping(uint256 => AVT) public issuedAVTs;
+
+    uint256 public ballotCount = 0;
+
+    event BallotCreated(Ballot ballot);
+    event AVTCreated(uint256 avt, AVT info);
+
+    function create(
+        string memory title,
+        string memory description,
+        string[] memory choices
+    ) public {
+        Ballot storage newBallot = ballots[ballotCount];
+        newBallot.id = ballotCount;
+        newBallot.title = title;
+        newBallot.description = description;
+        newBallot.owner = msg.sender;
+        newBallot.choices = choices;
+
+        isClosed[ballotCount] = false;
+
+        for (uint256 i = 0; i < choices.length; i++) {
+            results[ballotCount][i] = 0;
+        }
+
+        ballotCount++;
+
+        emit BallotCreated(newBallot);
+    }
+
+    function getBallots() public view returns (Ballot[] memory) {
+        Ballot[] memory result = new Ballot[](ballotCount);
+        for (uint256 i = 0; i < ballotCount; i++) {
+            result[i] = ballots[i];
+        }
+        return result;
+    }
+
+    function getBallot(uint256 id) public view returns (Ballot memory) {
+        return ballots[id];
+    }
+
+    function issueAVT(
+        uint256 tokenId,
+        uint256 ballotId
+    ) external returns (uint256) {
+        require(
+            ballotNFT.ownerOf(tokenId) == msg.sender,
+            "Caller does not own the NFT"
+        );
+        require(
+            !issuedAVTs[tokenId].isIssued,
+            "AVT already issued for this tokenId"
+        );
+        AVT memory info = AVT(
+            true,
+            ballotId,
+            false,
+            block.timestamp,
+            block.timestamp + 3600
+        );
+        issuedAVTs[tokenId] = info;
+        uint256 avt = uint256(
+            keccak256(abi.encodePacked(tokenId, ballotId, block.timestamp))
+        );
+        emit AVTCreated(avt, info);
+        return avt;
+    }
+
+    function mintBallotNFT() external {
+        ballotNFT.safeMint(msg.sender);
+    }
+
+    function castBallot(
+        uint256 ballotId,
+        uint256 tokenId,
+        uint256 avt,
+        uint256 choice
+    ) external {
+        require(
+            ballotNFT.ownerOf(tokenId) == msg.sender,
+            "Caller does not own the token"
+        );
+
+        AVT storage issuedAVT = issuedAVTs[tokenId];
+        require(issuedAVT.isIssued, "AVT not issued for this ballot");
+        require(
+            issuedAVT.ballotId == ballotId,
+            "AVT not issued for this ballot"
+        );
+        require(
+            !issuedAVT.hasVoted,
+            "AVT has already been used in this ballot"
+        );
+        uint256 expectedAVT = uint256(
+            keccak256(abi.encodePacked(tokenId, ballotId, issuedAVT.timestamp))
+        );
+        require(avt == expectedAVT, "Invalid AVT");
+        require(block.timestamp <= issuedAVT.expiredAt, "AVT has expired");
+
+        issuedAVT.hasVoted = true;
+
+        results[ballotId][choice] += 1;
+    }
+
+    function getResults(uint id) public view returns (uint[] memory) {
+        uint[] memory result = new uint[](ballots[id].choices.length);
+        for (uint256 i = 0; i < ballots[id].choices.length; i++) {
+            result[i] = results[id][i];
+        }
+        return result;
+    }
+
+    function getTokensByOwner(address tokenOwner) public view returns (TokenInfo[] memory) {
+        uint256 tokenCount = ballotNFT.balanceOf(tokenOwner);
+        TokenInfo[] memory tokenInfos = new TokenInfo[](tokenCount);
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < ballotNFT.nextTokenId(); i++) {
+            if (ballotNFT.ownerOf(i) == tokenOwner) {
+                tokenInfos[currentIndex] = TokenInfo(i, issuedAVTs[i]);
+                currentIndex++;
+            }
+        }
+
+        return tokenInfos;
     }
 }
+
 ```
 
 
@@ -233,8 +371,8 @@ Now that we have deployed both contracts, let's be aware of the contract address
 Create a `.env` file in `packages/site`
 
 ```
-VITE_EXAMPLE_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
-VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_BALLOT_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_BALLOT_CONTRACT=<DEPLOYED_TO_ADDRESS>
 ```
 
 You can get the values for each contract from the terminal `deployed to` when we deployed each contract.
@@ -287,11 +425,11 @@ We need to add another file in the components directory named: `SvgCard.tsx` and
 
 ```tsx
 import { useReadContract } from "wagmi";
-import { nftAbi } from "../../utils/abis";
+import { nftAbi } from "@/lib/abis";
 
 export const SvgCard = ({ tokenId }: { tokenId: number }) => {
   const { data: tokenSVG } = useReadContract({
-    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+    address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "tokenURI",
     args: [tokenId],
@@ -976,14 +1114,14 @@ export default function Home() {
   const result = useWaitForTransactionReceipt({ hash });
 
   const { data: voted, refetch: refetchVoted } = useReadContract({
-    address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
+    address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
     abi: voteAbi,
     functionName: "voter",
     args: [address],
   });
 
   const { data: userBalance, refetch: refetchUserBalance } = useReadContract({
-    address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+    address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "balanceOf",
     args: [address],
@@ -991,7 +1129,7 @@ export default function Home() {
 
   const { data: tokenIdsByOwner, refetch: refetchTokenIdsByOwner }: { data: any; refetch: any } =
     useReadContract({
-      address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+      address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
       abi: nftAbi,
       functionName: "getTokensByOwner",
       args: [address],
@@ -1016,7 +1154,7 @@ export default function Home() {
       // Create a minting state
       console.log("Minting...");
       writeContract({
-        address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+        address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
         abi: nftAbi,
         functionName: "safeMint",
         args: [address],
@@ -1031,7 +1169,7 @@ export default function Home() {
       // Create a voting state
       console.log("Voting...");
       writeContract({
-        address: import.meta.env.VITE_VOTING_CONTRACT as `0x${string}`,
+        address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
         abi: voteAbi,
         functionName: "hasVoted",
         args: [address],
@@ -1049,7 +1187,7 @@ export default function Home() {
           params: {
             type: "ERC721",
             options: {
-              address: import.meta.env.VITE_EXAMPLE_NFT_CONTRACT as `0x${string}`,
+              address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
               tokenId: id.toString(),
             },
           },
@@ -1212,8 +1350,8 @@ npm run install-openzeppelin
 Create a `.env` file in `packages/site`
 
 ```
-VITE_EXAMPLE_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
-VITE_VOTING_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_BALLOT_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
+VITE_BALLOT_CONTRACT=<DEPLOYED_TO_ADDRESS>
 ```
 
 #### Step Three: Build and Deploy Contracts
@@ -1236,7 +1374,7 @@ or using cast and env variables:
 forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/ExampleNFT.sol:ExampleNFT
 ```
 
-Copy the contract address printed after `Deployed to:` into the `VITE_EXAMPLE_NFT_CONTRACT` variable in `.env`
+Copy the contract address printed after `Deployed to:` into the `VITE_BALLOT_NFT_CONTRACT` variable in `.env`
 
 Deploy `Voting` contract:
 
@@ -1250,7 +1388,7 @@ or using cast and env variables:
 forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
 ```
 
-Copy the contract address printed after `Deployed to:` into the `VITE_EXAMPLE_NFT_CONTRACT` variable in `.env`
+Copy the contract address printed after `Deployed to:` into the `VITE_BALLOT_NFT_CONTRACT` variable in `.env`
 
 #### Run the Web dApp
 
