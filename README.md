@@ -22,7 +22,7 @@ This workshop was created by:
 
 - Alejandro Mena
   - [@_cxalem](https://twitter.com/_cxalem)
-- Chinthaka 
+- Chinthaka Weerakkody
   - [@chin_flags](https://x.com/chin_flags)
 - Eric Bishard
   - [@httpJunkie](https://twitter.com/httpjunkie)
