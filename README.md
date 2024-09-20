@@ -22,11 +22,10 @@ This workshop was created by:
 
 - Alejandro Mena
   - [@_cxalem](https://twitter.com/_cxalem)
+- Chinthaka 
+  - [@chin_flags](https://x.com/chin_flags)
 - Eric Bishard
   - [@httpJunkie](https://twitter.com/httpjunkie)
-
-
-Both of whom will be onsite at ETH Brussels in case yu need our help getting started and beyond.
 
 ## Build this workshop from scratch
 
