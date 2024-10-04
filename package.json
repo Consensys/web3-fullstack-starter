@@ -11,6 +11,6 @@
   "description": "",
   "workspaces": [
     "packages/site",
-    "blockchain"
+    "packages/blockchain"
   ]
 }
