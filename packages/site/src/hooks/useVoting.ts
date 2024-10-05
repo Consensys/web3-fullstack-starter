@@ -8,7 +8,9 @@ import { ballotsAbi } from "@/lib/abis";
 import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-export function useVoting(ballotId: bigint) {
+export function useVoting(ballotId: number) {
+  const ballotIdBigInt = ballotId as unknown as bigint;
+
   const {
     data: hash,
     error,
@@ -31,7 +33,7 @@ export function useVoting(ballotId: bigint) {
       address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
       abi: ballotsAbi,
       functionName: "castBallot",
-      args: [ballotId, tokenId, choice],
+      args: [ballotIdBigInt, tokenId, choice],
     });
   }
 
@@ -39,14 +41,14 @@ export function useVoting(ballotId: bigint) {
     address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
     abi: ballotsAbi,
     functionName: "hasVoted",
-    args: [address ?? "0x0", ballotId],
+    args: [address ?? "0x0", ballotIdBigInt],
   });
 
   const { data: results, queryKey: resultsQueryKey } = useReadContract({
     address: import.meta.env.VITE_BALLOT_CONTRACT as `0x${string}`,
     abi: ballotsAbi,
     functionName: "getResults",
-    args: [ballotId],
+    args: [ballotIdBigInt],
   });
 
   const resetVotingState = useCallback(() => {

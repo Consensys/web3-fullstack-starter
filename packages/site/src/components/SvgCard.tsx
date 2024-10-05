@@ -9,11 +9,12 @@ interface SvgProps {
 }
 
 export const SvgCard = ({ token, onClick, isUsed }: SvgProps) => {
+  const tokenBigInt = Number(token) as unknown as bigint;
   const { data: tokenSVG } = useReadContract({
     address: import.meta.env.VITE_BALLOT_NFT_CONTRACT as `0x${string}`,
     abi: nftAbi,
     functionName: "tokenURI",
-    args: [token],
+    args: [tokenBigInt],
   });
   
   return (
