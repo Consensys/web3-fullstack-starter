@@ -13,13 +13,18 @@ import { useVoting } from "@/hooks/useVoting";
 import { Badge } from "@/components/ui/badge";
 
 interface CardProps {
-  id: bigint;
+  id: number;
   title: string;
   description: string;
   choices: readonly string[];
 }
 
-const BallotCard: React.FC<CardProps> = ({ id, title, description, choices }) => {
+const BallotCard: React.FC<CardProps> = ({
+  id,
+  title,
+  description,
+  choices,
+}) => {
   const { hasVoted } = useVoting(id);
 
   return (

@@ -25,7 +25,7 @@ export const Results = ({
   title,
   choices,
 }: {
-  id: bigint;
+  id: number;
   title: string;
   choices: readonly string[];
 }) => {

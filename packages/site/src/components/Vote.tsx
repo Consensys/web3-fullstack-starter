@@ -23,7 +23,7 @@ export const Vote = ({
   choices,
 }: {
   title: string;
-  ballotId: bigint;
+  ballotId: number;
   choices: readonly string[];
 }) => {
   const [selectedChoice, setSelectedChoice] = useState<number>();

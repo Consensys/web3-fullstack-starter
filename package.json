@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "install-openzeppelin": "cd blockchain && pnpm install && forge install --no-git OpenZeppelin/openzeppelin-contracts"
+    "install-openzeppelin": "cd packages/blockchain && pnpm install && forge install --no-git OpenZeppelin/openzeppelin-contracts"
   },
   "keywords": [],
   "author": "",
