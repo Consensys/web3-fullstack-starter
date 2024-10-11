@@ -1,16 +1,16 @@
 {
-  "name": "web3-hacker-workshop",
+  "name": "step-first",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "install-openzeppelin": "cd packages/blockchain && pnpm install && forge install --no-git OpenZeppelin/openzeppelin-contracts"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "workspaces": [
-    "packages/site",
-    "packages/blockchain"
+    "packages/blockchain",
+    "packages/site"
   ]
 }

@@ -1,24 +1,14 @@
-lib
+# Compiler files
+cache/
+out/
 
-node_modules
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/**/dry-run/
 
-out
+# Docs
+docs/
 
-cache
-node_modules
+# Dotenv file
 .env
-
-# Hardhat files
-/cache
-/artifacts
-
-# TypeChain files
-/typechain
-/typechain-types
-
-# solidity-coverage files
-/coverage
-/coverage.json
-
-# Hardhat Ignition default folder for deployments against a local node
-ignition/deployments/chain-31337
