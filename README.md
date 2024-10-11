@@ -4,11 +4,11 @@ This workshop is designed with the needs of hackers and builders in mind. A hand
 
 ## About This Workshop
 
-TO create this project we used the [create-web3-template](https://github.com/Consensys/create-web3-template) CLI to scaffold a mono repo (all in one repository) containing a `blockchain` and `site` directory. With this CLI, you can choose to work with hardhat or foundry and we chose Foundry, so the information below is specific to the Foundry option. 
+To create this project we used the [create-web3-template](https://github.com/Consensys/create-web3-template) CLI to scaffold a mono repo (all in one repository) containing a `blockchain` and `site` directory. With this CLI, you can choose to work with hardhat or foundry and we chose Foundry, so the information below is specific to the Foundry option. 
 
 Understand that to simply clone and run this repo, you do not need to know much about the CLI but the architecture is such because we used it as our starting point.
 
-Our workshop and the code within is a fundamental example of a real worl fullstack dapp and we think it is a good starter application that uses our various Consensys products like [Linea](https://linea.build/) which we deploy to the [Sepolia](https://sepolia.lineascan.build/) testnet. We have examples of interacting with those contracts via the web dApp using the [TanStack Query for React](https://tanstack.com/query/latest). We cover some edge cases that are important in a dApp to ensure after [reading](https://wagmi.sh/react/api/hooks/useReadContracts) and [writing](https://wagmi.sh/react/api/hooks/useWriteContracts#usewritecontracts) to the contracts with Wagmi Hooks are shown and use interesting hooks like: [wait for transaction receipts](https://wagmi.sh/react/api/hooks/useWaitForTransactionReceipt#usewaitfortransactionreceipt) to [refetch](https://wagmi.sh/vue/api/composables/useReadContract#refetch) queries and refresh your UI so that your dApp does not have to be hard-refreshed.
+Our workshop and the code within is a fundamental example of a real world fullstack dapp and we think it is a good starter application that uses our various Consensys products like [Linea](https://linea.build/) which we deploy to the [Sepolia](https://sepolia.lineascan.build/) testnet. We have examples of interacting with those contracts via the web dApp using the [TanStack Query for React](https://tanstack.com/query/latest). We cover some edge cases that are important in a dApp to ensure after [reading](https://wagmi.sh/react/api/hooks/useReadContracts) and [writing](https://wagmi.sh/react/api/hooks/useWriteContracts#usewritecontracts) to the contracts with Wagmi Hooks are shown and use interesting hooks like: [wait for transaction receipts](https://wagmi.sh/react/api/hooks/useWaitForTransactionReceipt#usewaitfortransactionreceipt) to [refetch](https://wagmi.sh/vue/api/composables/useReadContract#refetch) queries and refresh your UI so that your dApp does not have to be hard-refreshed.
 
 As developers who work closely with Web3 hackers worldwide, what is covered in this workshop should take minimal time for novice developers to understand and can help you understand basic concepts without having to build them your self from scratch.
 
@@ -73,19 +73,33 @@ Build contracts with Forge:
 cd packages/blockchain && forge build
 ```
 
-Deploy BallotNFT contract:
+Deploy `BallotNFT` contract:
 
-```zsh
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/BallotNFT.sol:BallotNFT
+```
+
+or using cast and env variables:
+
+```bash
 forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/BallotNFT.sol:BallotNFT
 ```
 
-Deploy BallotContract contract:
+Deploy `BallotContract` contract:
 
-```zsh
+```bash
+forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/BallotContract.sol:BallotContract --constructor-args <PUBLIC_KEY>
+```
+
+or using cast and env variables:
+
+```bash
 forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/BallotContract.sol:BallotContract --constructor-args <PUBLIC_KEY>
 ```
 
-Copy BallotNFT and BallotContract contract address from `DeployedTo:` to environment variable file:
+Change the filename of `.env.example` to `.env` and then copy `BallotNFT` and `BallotContract` contract address from `DeployedTo:` (in our terminal) to environment variable file:
+
+> *Understand that even if we have exported our Infura API key for use in the terminal, we still need to have the Infura API key in our environment variable file so that the web dapp has access to it.
 
 ```zsh
 VITE_BALLOT_NFT_CONTRACT=<DEPLOYED_TO_ADDRESS>
@@ -99,39 +113,7 @@ Run the dApp:
 cd ../packages/site && npm run dev
 ```
 
-#### Step Three: Build and Deploy Contracts
 
-Ensure the contracts build
-
-```bash
-cd blockchain && forge build
-```
-
-Deploy `ExampleNFT` contract:
-
-```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/ExampleNFT.sol:ExampleNFT
-```
-
-or using cast and env variables:
-
-```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/ExampleNFT.sol:ExampleNFT
-```
-
-Copy the contract address printed after `Deployed to:` into the `VITE_BALLOT_NFT_CONTRACT` variable in `.env`
-
-Deploy `Voting` contract:
-
-```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/<INFURA_KEY> --private-key <PRIVATE_KEY> src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
-```
-
-or using cast and env variables:
-
-```bash
-forge create --rpc-url https://linea-sepolia.infura.io/v3/$INFURA_API_KEY --account myCastAccountName src/Voting.sol:Voting --constructor-args <PUBLIC_KEY>
-```
 
 Copy the contract address printed after `Deployed to:` into the `VITE_BALLOT_NFT_CONTRACT` variable in `.env`
 
@@ -149,7 +131,7 @@ If you are new to Foundry, we have put together some of the basics on working wi
 
 ### Saving a private key with an alias and Foundry account name
 
-> `myCastAccountName` is most likely not what your alias is, so ensure that when you see this variable in the commands that you swap it out with your own alias.
+> *Remember that `myCastAccountName` is not what your alias is named, so ensure that when you see this variable in the commands that you swap it out with your own alias.
 
 run:
 ```bash
