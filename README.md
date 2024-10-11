@@ -107,16 +107,6 @@ VITE_BALLOT_CONTRACT=<DEPLOYED_TO_ADDRESS>
 INFURA_PROJECT_ID=<INFURA_PROJECT_ID>
 ```
 
-Run the dApp:
-
-```zsh
-cd ../packages/site && npm run dev
-```
-
-
-
-Copy the contract address printed after `Deployed to:` into the `VITE_BALLOT_NFT_CONTRACT` variable in `.env`
-
 ### Run the Web dApp
 
 Change into `packages/site` and run project:
